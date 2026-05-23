@@ -1,0 +1,234 @@
+/* ==========================================================================
+   1. Dashboard Global Layout & Aesthetics (Matches your clean grayscale image)
+   ========================================================================== */
+body {
+    background-color: #f7f7f7;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    color: #111111;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Admin Dashboard Bar (Hidden during PDF/PNG printing) */
+.admin-dashboard {
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    padding: 15px 20px;
+    margin-bottom: 25px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.control-group label {
+    font-weight: bold;
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+.control-group select {
+    padding: 6px 12px;
+    font-size: 14px;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+}
+
+#backup-data-btn {
+    background-color: #333333;
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+#backup-data-btn:hover {
+    background-color: #000000;
+}
+
+/* ==========================================================================
+   2. Exact Timetable Structure Alignment (Matches Image Header & Grid)
+   ========================================================================== */
+.timetable-page {
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    padding: 30px;
+    box-sizing: border-box;
+    max-width: 1000px;
+    margin: 0 auto 30px auto;
+}
+
+/* Centered Header with Title and Underline */
+.timetable-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.school-title {
+    font-size: 22px;
+    font-weight: bold;
+    margin: 0 0 4px 0;
+    letter-spacing: 0.5px;
+}
+
+.cycle-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+}
+
+/* Left/Right Aligned Sub-Metadata Blocks */
+.meta-container {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.meta-left, .meta-right {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+/* Core Matrix Grid Table Lines */
+.timetable-grid {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #bbbbbb;
+}
+
+.timetable-grid th, 
+.timetable-grid td {
+    border: 1px solid #bbbbbb;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 13px;
+    height: 48px;
+    padding: 0; /* Clears margins to let inner dividers sit perfectly flush */
+}
+
+/* Light Gray Header blocks and Time Column */
+.timetable-grid th, 
+.time-col {
+    background-color: #eaeaea;
+    font-weight: normal;
+    color: #333333;
+}
+
+/* Standard static background fields (Recess, Lunch, Assembly) */
+.fixed-row td,
+.break-row td,
+.fixed-activity-cell {
+    background-color: #ffffff;
+    font-size: 13px;
+    font-weight: normal;
+}
+
+/* ==========================================================================
+   3. Interactive Operations: Double Splits & Staging Dock
+   ========================================================================== */
+.cell {
+    position: relative;
+    background-color: #ffffff;
+}
+
+/* Mid-cell division line rule for split groups or labs */
+.split-wrapper {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.split-left, .split-right {
+    width: 50%;
+    height: 100%;
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.split-left {
+    border-right: 1px solid #dddddd;
+}
+
+/* Micro Corner Metadata Indicators for Rooms and Initials inside the cells */
+.room-label {
+    position: absolute;
+    top: 3px;
+    left: 4px;
+    font-size: 9px;
+    color: #666666;
+}
+
+.subject-label {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.initials-label {
+    position: absolute;
+    bottom: 3px;
+    right: 4px;
+    font-size: 9px;
+    color: #444444;
+}
+
+/* The Bottom Lesson Holding Staging Bar */
+.holding-dock {
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    padding: 15px 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+    border-radius: 4px;
+}
+
+.holding-dock h3 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #555555;
+}
+
+.dock-container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    min-height: 50px;
+    background-color: #fafafa;
+    border: 1px dashed #cccccc;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+/* ==========================================================================
+   4. High-Res Document Export Engine Configuration (A4 Vertical Stack)
+   ========================================================================== */
+@media print {
+    body {
+        background-color: #ffffff;
+        padding: 0;
+        margin: 0;
+    }
+
+    /* Completely vanish the background administrative configurations */
+    .admin-dashboard, 
+    .holding-dock {
+        display: none !important;
+    }
+
+    /* Constrain the margins to squeeze perfectly onto a clean vertical single sheet */
+    .timetable-page {
+        border: none;
+        padding: 10mm 15mm;
+        margin: 0;
+        page-break-inside: avoid;
+        height: 140mm; /* Fixes each Week view scale factor */
+    }
+}
