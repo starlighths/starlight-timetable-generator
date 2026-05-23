@@ -379,4 +379,9 @@ body {
     margin-top: 6px;
     font-size: 11px;
     color: #888888;
+}/* Clean merge render styling for non-grouped single-period blocks */
+.cell-merged-block {
+    grid-column: span 2 !important;
+    text-align: center;
+    background-color: #fcfcfc;
 }
