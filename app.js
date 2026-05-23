@@ -58,10 +58,33 @@ const subjectsMetaIndex = {
     "el": { short: "EL", requiresMeeting: false, isGrouped: true, elective: true, floors: ["1"] }
 };
 
-// Hardcoded cross-classed block band definitions
+// Hardcoded master cross-classed block band definitions from the 262Ledger
 const crossClassBands = [
-    { level: "Grade 1", classes: ["1C", "1D"], subjects: ["eng", "math"] },
-    { level: "Grade 2", classes: ["2C", "2D"], subjects: ["eng", "math"] }
+    // --- ALL-GRADE ELECTIVE BLOCK CLUSTERS (Full Grade Locks Together) ---
+    { classes: ["1A", "1B", "1C", "1D"], subjects: ["dance", "m&b", "drama", "kl", "el"] },
+    { classes: ["2A", "2B", "2C", "2D"], subjects: ["dance", "m&b", "drama"] },
+    { classes: ["3A", "3B", "3C"],       subjects: ["dance", "m&b", "drama"] },
+
+    // --- S1 (GRADE 1) SEPARATE MAIN & PE BLOCKS ---
+    { classes: ["1A", "1B"],             subjects: ["korean"] },
+    { classes: ["1A", "1B"],             subjects: ["kf"] },
+    { classes: ["1C", "1D"],             subjects: ["eng"] },   // English standalone block
+    { classes: ["1C", "1D"],             subjects: ["math"] },  // Math standalone block
+    { classes: ["1A", "1C"],             subjects: ["pe"] },
+    { classes: ["1B", "1D"],             subjects: ["pe"] },
+
+    // --- S2 (GRADE 2) SEPARATE MAIN & PE BLOCKS ---
+    { classes: ["2A", "2B"],             subjects: ["korean"] },
+    { classes: ["2A", "2B"],             subjects: ["kf"] },
+    { classes: ["2A", "2B"],             subjects: ["kr.hist"] },
+    { classes: ["2C", "2D"],             subjects: ["eng"] },   // English standalone block
+    { classes: ["2C", "2D"],             subjects: ["math"] },  // Math standalone block
+    { classes: ["2A", "2D"],             subjects: ["pe"] },
+    { classes: ["2B", "2C"],             subjects: ["pe"] },
+
+    // --- S3 (GRADE 3) UNIFORM COHORTS & SPECS ---
+    { classes: ["3A", "3B", "3C"],       subjects: ["pe"] },
+    { classes: ["3A", "3B", "3C"],       subjects: ["tech"] }
 ];
 
 // ==========================================================================
@@ -287,8 +310,17 @@ function setupInterfaceListeners() {
             return;
         }
 
-        // --- DETERMINING ALLOCATION BOUNDS ---
+        // --- DETERMINING ALLOCATION BOUNDS FROM MASTER LEDGER ---
         let targetClassesToFill = [AppState.currentClass];
+        
+        // Scan our brand new master matrix array to find if this combination triggers a multi-class lock
+        const activeBand = crossClassBands.find(band => 
+            band.classes.includes(AppState.currentClass) && band.subjects.includes(subKey)
+        );
+
+        if (activeBand) {
+            targetClassesToFill = activeBand.classes; // Fixes typo: properly assigns the linked sister classes
+        }
         
         // Find if this subject belongs to a cross-class block link (e.g., 1C & 1D Eng)
         const activeBand = crossClassBands.find(band => 
@@ -359,53 +391,65 @@ function setupInterfaceListeners() {
 }
 
 // ==========================================================================
-// 6. Global Synchronization Engine
+
+// ==========================================================================
+// ==========================================================================
+// 6. Global Synchronization Engine (Fixed Render & Safe Lookup Sweep)
 // ==========================================================================
 function syncMetadataToUI() {
     const cls = AppState.currentClass;
     const info = AppState.schoolData.classes[cls];
     const computedRoom = calculateRoomNumber(cls);
 
+    // Sync basic template headers safely
     document.querySelectorAll(".school-year-val").forEach(el => el.textContent = AppState.schoolYear);
     document.querySelectorAll(".class-id-val").forEach(el => el.textContent = `Class ${cls}`);
     document.querySelectorAll(".homeroom-val").forEach(el => el.textContent = `RM${computedRoom}`);
-    document.querySelectorAll(".class-teacher-val").forEach(el => el.textContent = info.teachers.length > 0 ? info.teachers.join(" / ") : "None Assigned");
+    
+    if (info && info.teachers) {
+        document.querySelectorAll(".class-teacher-val").forEach(el => el.textContent = info.teachers.length > 0 ? info.teachers.join(" / ") : "None Assigned");
+    }
 
     document.getElementById("staff-count").textContent = Object.keys(AppState.schoolData.teachersRoster).length;
     document.getElementById("subject-count").textContent = Object.keys(AppState.schoolData.subjectsCurriculum).length;
 
+    // Extract raw level prefix ('1', '2', or '3') to safely normalize current tracking bounds
+    const classFloorPrefix = cls.charAt(0); 
+
     // Rebuild Unassigned Dock tokens tightly matched to this specific classroom class ID
     const dock = document.getElementById("dock-slots-target");
-    dock.innerHTML = "";
-    const activeAllocations = Object.values(AppState.schoolData.savedGrids);
+    if (dock) {
+        dock.innerHTML = "";
+        const activeAllocations = Object.values(AppState.schoolData.savedGrids);
 
-    Object.entries(AppState.schoolData.subjectsCurriculum).forEach(([ruleID, rule]) => {
-        if (rule.targetClass !== cls) return; // Only extract budgets assigned explicitly to this exact class
+        Object.entries(AppState.schoolData.subjectsCurriculum).forEach(([ruleID, rule]) => {
+            if (rule.targetClass !== cls) return; // Only show tokens belonging to the active class view
 
-        for (let i = 0; i < rule.totalPeriods; i++) {
-            const isAllocated = activeAllocations.some(a => a.ruleID === ruleID && parseInt(a.tokenIndex,10) === i);
-            if (!isAllocated) {
-                const token = document.createElement("div");
-                token.className = "lesson-token";
-                token.dataset.ruleid = ruleID;
-                token.dataset.subkey = rule.subjectKey;
-                token.dataset.short = rule.shortForm;
-                token.dataset.teacher = rule.teacherInitials;
-                token.dataset.tokenindex = i;
-                token.textContent = `${rule.shortForm} (${rule.teacherInitials})`;
-                
-                token.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    document.querySelectorAll(".lesson-token").forEach(t => t.classList.remove("selected-token"));
-                    AppState.selectedTokenNode = token;
-                    token.classList.add("selected-token");
-                });
-                dock.appendChild(token);
+            for (let i = 0; i < rule.totalPeriods; i++) {
+                const isAllocated = activeAllocations.some(a => a.ruleID === ruleID && parseInt(a.tokenIndex, 10) === i);
+                if (!isAllocated) {
+                    const token = document.createElement("div");
+                    token.className = "lesson-token";
+                    token.dataset.ruleid = ruleID;
+                    token.dataset.subkey = rule.subjectKey;
+                    token.dataset.short = rule.shortForm;
+                    token.dataset.teacher = rule.teacherInitials;
+                    token.dataset.tokenindex = i;
+                    token.textContent = `${rule.shortForm} (${rule.teacherInitials})`;
+                    
+                    token.addEventListener("click", (e) => {
+                        e.stopPropagation();
+                        document.querySelectorAll(".lesson-token").forEach(t => t.classList.remove("selected-token"));
+                        AppState.selectedTokenNode = token;
+                        token.classList.add("selected-token");
+                    });
+                    dock.appendChild(token);
+                }
             }
-        }
-    });
+        });
+    }
 
-   // Clear cells and reset structural layout states before repainting memory values
+    // Reset grid structural wrapper elements before painting current database allocations
     document.querySelectorAll(".cell .split-wrapper").forEach(w => {
         w.style.display = "grid";
         w.style.gridTemplateColumns = "1fr 1fr";
@@ -417,23 +461,25 @@ function syncMetadataToUI() {
         n.querySelector(".initials-label").textContent = "";
     });
 
+    // Repaint all active allocations stored in memory onto the visual tables
     Object.entries(AppState.schoolData.savedGrids).forEach(([key, data]) => {
-        if (!key.startsWith(`${cls}_`)) return;
+        if (!key.startsWith(`${cls}_`)) return; // Only process rows allocated to this class
         const parts = key.split("_");
-        const wk = parts[1].replace("W","");
+        const wk = parts[1].replace("W", "");
         const dy = parts[2];
-        const pd = parts[3].replace("P","");
+        const pd = parts[3].replace("P", "");
         const sp = parts[4];
 
         const match = document.querySelector(`.cell[data-week="${wk}"][data-day="${dy}"][data-period="${pd}"]`);
         if (match) {
-            const subMeta = subjectsMetaIndex[data.subjectKey];
+            // SAFE LOOKUP CHECK: Scan our updated master metadata index securely
+            const subMeta = subjectsMetaIndex[data.subjectKey.toLowerCase()];
             const wrapper = match.querySelector(".split-wrapper");
             const leftNode = match.querySelector(`[data-split="left"]`);
             const rightNode = match.querySelector(`[data-split="right"]`);
 
             if (subMeta && subMeta.isGrouped === false) {
-                // Visual layout merge: hide the right split element, stretch the left element full width
+                // If subject is single-room/non-grouped, hide right column and let left stretch full-width
                 if (wrapper && leftNode && rightNode) {
                     wrapper.style.gridTemplateColumns = "1fr";
                     rightNode.style.display = "none";
@@ -443,7 +489,7 @@ function syncMetadataToUI() {
                     leftNode.querySelector(".initials-label").textContent = data.teacherInitials;
                 }
             } else {
-                // Standard block split layout assignment
+                // Otherwise draw standard half-column tracking block split options
                 const splitNode = match.querySelector(`[data-split="${sp}"]`);
                 if (splitNode) {
                     splitNode.querySelector(".room-label").textContent = computedRoom;
