@@ -409,4 +409,22 @@ body {
     align-items: center;
     box-sizing: border-box;
     border: 1px solid #eee; /* Light border helps you see the true width */
+}/* FORCE RIGID SYMMETRY ON ALL CELLS */
+.cell {
+    width: 100px; /* Optional: adjust if needed */
+    padding: 0 !important;
+}
+
+.split-wrapper {
+    display: flex !important;
+    flex-direction: row !important;
+    width: 100% !important;
+}
+
+.split-left, 
+.split-right {
+    flex: 1 1 50% !important; /* Force both sides to be 50% width */
+    min-width: 50% !important;
+    box-sizing: border-box;
+    border: 0.5px solid #ddd; /* Tiny border to visualize the split */
 }
