@@ -256,6 +256,7 @@ function setupInterfaceListeners() {
     });
 
     // Timetable Assignment Clicking Node Interceptor (Handles Full-Width Merging & Cross-Class Banding)
+    // Timetable Assignment Clicking Node Interceptor (Handles Full-Width Merging & Cross-Class Banding)
     document.getElementById("timetable-print-canvas").addEventListener("click", (e) => {
         const targetSplit = e.target.closest(".split-left, .split-right");
         if (!targetSplit) return;
@@ -275,7 +276,7 @@ function setupInterfaceListeners() {
             Object.keys(AppState.schoolData.savedGrids).forEach(key => {
                 if (key.includes(`_W${wk}_${dy}_P${pd}_`)) {
                     const match = AppState.schoolData.savedGrids[key];
-                    if (match.ruleID === dataToWipe.ruleID) {
+                    if (match && match.ruleID === dataToWipe.ruleID) {
                         delete AppState.schoolData.savedGrids[key];
                     }
                 }
@@ -313,28 +314,19 @@ function setupInterfaceListeners() {
         // --- DETERMINING ALLOCATION BOUNDS FROM MASTER LEDGER ---
         let targetClassesToFill = [AppState.currentClass];
         
-        // Scan our brand new master matrix array to find if this combination triggers a multi-class lock
-        const activeBand = crossClassBands.find(band => 
+        // Scan master matrix array to find if this combination triggers a multi-class lock
+        const activeBandRule = crossClassBands.find(band => 
             band.classes.includes(AppState.currentClass) && band.subjects.includes(subKey)
         );
 
-        if (activeBand) {
-            targetClassesToFill = activeBand.classes; // Fixes typo: properly assigns the linked sister classes
-        }
-        
-        // Find if this subject belongs to a cross-class block link (e.g., 1C & 1D Eng)
-        const activeBand = crossClassBands.find(band => 
-            band.classes.includes(AppState.currentClass) && band.subjects.includes(subKey)
-        );
-
-        if (activeBand) {
-            targetClassesToFill = activeBand.classes; // Fill both 1C and 1D simultaneously!
+        if (activeBandRule) {
+            targetClassesToFill = activeBandRule.classes; // Automatically mirror assignment across all grouped sister classes!
         }
 
-        // Save layout configuration to database maps
+        // Save layout assignment configurations to the database registry state
         targetClassesToFill.forEach(cls => {
             if (subMeta && subMeta.isGrouped === false) {
-                // Non-Grouped items fill BOTH left and right split options completely
+                // Single-period full-width subjects fill both grid splits block-wide
                 AppState.schoolData.savedGrids[`${cls}_W${wk}_${dy}_P${pd}_left`] = {
                     subjectKey: subKey, shortForm: shortForm, teacherInitials: teacherInitials, ruleID: ruleId, tokenIndex: tokenIndex
                 };
@@ -342,7 +334,7 @@ function setupInterfaceListeners() {
                     subjectKey: subKey, shortForm: shortForm, teacherInitials: teacherInitials, ruleID: ruleId, tokenIndex: tokenIndex
                 };
             } else {
-                // Grouped items fill just the specific targeted left or right half grid column split selected
+                // Grouped track splits fill the individual column drop target area
                 AppState.schoolData.savedGrids[`${cls}_W${wk}_${dy}_P${pd}_${sp}`] = {
                     subjectKey: subKey, shortForm: shortForm, teacherInitials: teacherInitials, ruleID: ruleId, tokenIndex: tokenIndex
                 };
@@ -353,30 +345,6 @@ function setupInterfaceListeners() {
         AppState.selectedTokenNode = null; 
         syncMetadataToUI();
     });
-        // Eraser Clear Mode Execution Check
-        if (!AppState.selectedTokenNode && AppState.schoolData.savedGrids[allocationKey]) {
-            delete AppState.schoolData.savedGrids[allocationKey];
-            persistDatabaseState();
-            syncMetadataToUI();
-            return;
-        }
-
-        // Standard Token Placement Operation
-        if (!AppState.selectedTokenNode) return;
-
-        AppState.schoolData.savedGrids[allocationKey] = {
-            subjectKey: AppState.selectedTokenNode.dataset.subkey,
-            shortForm: AppState.selectedTokenNode.dataset.short,
-            teacherInitials: AppState.selectedTokenNode.dataset.teacher,
-            ruleID: AppState.selectedTokenNode.dataset.ruleid,
-            tokenIndex: AppState.selectedTokenNode.dataset.tokenindex
-        };
-
-        persistDatabaseState();
-        AppState.selectedTokenNode = null; 
-        syncMetadataToUI();
-    });
-
     document.getElementById("wipe-data-btn").addEventListener("click", () => {
         if (confirm("Are you sure you want to completely clear the database layout parameters?")) {
             AppState.schoolData = JSON.parse(JSON.stringify(defaultDataSkeleton));
