@@ -1,5 +1,5 @@
 // ==========================================================================
-// 1. Master Application State & Data Structure
+// 1. Master Application State & Dynamic Storage Models
 // ==========================================================================
 let AppState = {
     schoolYear: "2026-2027",
@@ -7,27 +7,26 @@ let AppState = {
     schoolData: null
 };
 
-// Default skeleton to bootstrap the 2026-2027 school year database
 const defaultDataSkeleton = {
     schoolYear: "2026-2027",
     classes: {
-        "1A": { homeroom: "RM101", teachers: ["Mrs. Alice Morgan", "Mr. John Davis"] },
-        "1B": { homeroom: "RM102", teachers: ["Mr. Brian Davis"] },
-        "1C": { homeroom: "RM103", teachers: ["Ms. Clara Wong"] },
-        "1D": { homeroom: "RM104", teachers: ["Mr. David Lee"] },
-        "2A": { homeroom: "RM201", teachers: ["Mrs. Emma Watson"] },
-        "2B": { homeroom: "RM202", teachers: ["Mr. Frank Castle"] },
-        "2C": { homeroom: "RM203", teachers: ["Grace Hopper"] },
-        "2D": { homeroom: "RM204", teachers: ["Henry Cavill"] },
-        "3A": { homeroom: "RM301", teachers: ["Ian McKellen"] },
-        "3B": { homeroom: "RM302", teachers: ["Julia Roberts"] },
-        "3C": { homeroom: "RM303", teachers: ["Kevin Bacon"] }
-        // Note: 3D is deliberately omitted from active list per requirements
+        "1A": { homeroom: "", teachers: [] },
+        "1B": { homeroom: "", teachers: [] },
+        "1C": { homeroom: "", teachers: [] },
+        "1D": { homeroom: "", teachers: [] },
+        "2A": { homeroom: "", teachers: [] },
+        "2B": { homeroom: "", teachers: [] },
+        "2C": { homeroom: "", teachers: [] },
+        "2D": { homeroom: "", teachers: [] },
+        "3A": { homeroom: "", teachers: [] },
+        "3B": { homeroom: "", teachers: [] },
+        "3C": { homeroom: "", teachers: [] }
     },
+    // The Master Teacher Directory Index (Initials -> Data mapping)
+    teachersRoster: {},
     savedGrids: {}
 };
 
-// Defining the time blocks matching the image specifications
 const timeSlots = [
     { label: "08:15-09:00", periodNum: 1 },
     { label: "09:00-09:45", periodNum: 2 },
@@ -44,7 +43,7 @@ const timeSlots = [
 const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 
 // ==========================================================================
-// 2. Lifecycle Initialization Pipeline
+// 2. Lifecycle System Setup
 // ==========================================================================
 document.addEventListener("DOMContentLoaded", () => {
     loadDatabaseState();
@@ -53,7 +52,6 @@ document.addEventListener("DOMContentLoaded", () => {
     syncMetadataToUI();
 });
 
-// Load configuration from local cache storage or establish fresh tracking state
 function loadDatabaseState() {
     const localCacheKey = `StarlightTimetable_${AppState.schoolYear}`;
     const cachedData = localStorage.getItem(localCacheKey);
@@ -71,8 +69,11 @@ function persistDatabaseState() {
     localStorage.setItem(localCacheKey, JSON.stringify(AppState.schoolData));
 }
 
-// Wire up dropdown selectors to swap data dynamically
+// ==========================================================================
+// 3. Interactive Management Event Interceptors
+// ==========================================================================
 function setupInterfaceListeners() {
+    // Dropdown structural layout tracking
     const classSelector = document.getElementById("class-view-selector");
     if (classSelector) {
         classSelector.addEventListener("change", (e) => {
@@ -81,27 +82,68 @@ function setupInterfaceListeners() {
         });
     }
 
-    const backupBtn = document.getElementById("backup-data-btn");
-    if (backupBtn) {
-        backupBtn.addEventListener("click", downloadSystemDataFile);
-    }
+    // Class Teacher & Homeroom Form Entry Actions
+    document.getElementById("save-class-meta-btn").addEventListener("click", () => {
+        const currentClassID = AppState.currentClass;
+        const hrInput = document.getElementById("input-homeroom").value.trim();
+        const ct1Input = document.getElementById("input-ct1").value.trim();
+        const ct2Input = document.getElementById("input-ct2").value.trim();
+
+        if (hrInput) AppState.schoolData.classes[currentClassID].homeroom = hrInput;
+        
+        let compositeTeachers = [];
+        if (ct1Input) compositeTeachers.push(ct1Input);
+        if (ct2Input) compositeTeachers.push(ct2Input);
+        AppState.schoolData.classes[currentClassID].teachers = compositeTeachers;
+
+        persistDatabaseState();
+        syncMetadataToUI();
+        
+        // Clear forms out for efficiency
+        document.getElementById("input-homeroom").value = "";
+        document.getElementById("input-ct1").value = "";
+        document.getElementById("input-ct2").value = "";
+    });
+
+    // Teacher Directory Registration Entry Actions
+    document.getElementById("add-teacher-btn").addEventListener("click", () => {
+        const initials = document.getElementById("input-t-initials").value.trim().toUpperCase();
+        const fullName = document.getElementById("input-t-fullname").value.trim();
+        const department = document.getElementById("input-t-dept").value;
+
+        if (!initials || !fullName) {
+            alert("Please provide both Teacher Initials and Full Name parameters.");
+            return;
+        }
+
+        // Add or overwrite teacher data in directory cache block
+        AppState.schoolData.teachersRoster[initials] = {
+            fullName: fullName,
+            department: department
+        };
+
+        persistDatabaseState();
+        syncMetadataToUI();
+
+        // Clear input parameters
+        document.getElementById("input-t-initials").value = "";
+        document.getElementById("input-t-fullname").value = "";
+        document.getElementById("input-t-dept").value = "General";
+    });
+
+    document.getElementById("backup-data-btn").addEventListener("click", downloadSystemDataFile);
 }
 
 // ==========================================================================
-// 3. Structural Grid Generation Engine
+// 4. Matrix Generation & Display Synchronization
 // ==========================================================================
 function generateDynamicGridRows() {
     const tableBody = document.getElementById("timetable-body-week1");
     if (!tableBody) return;
 
-    // Clear any existing dynamic rows first to avoid duplication bugs
-    const standardRows = tableBody.querySelectorAll("tr:not(.fixed-row)");
-    standardRows.forEach(row => row.remove());
-
     timeSlots.forEach(slot => {
         const row = document.createElement("tr");
 
-        // 1. Handle special Recess row span
         if (slot.isRecess) {
             row.className = "break-row";
             row.innerHTML = `<td class="time-col">${slot.label}</td><td colspan="5">Recess</td>`;
@@ -109,7 +151,6 @@ function generateDynamicGridRows() {
             return;
         }
 
-        // 2. Handle special Lunch row span
         if (slot.isLunch) {
             row.className = "break-row";
             row.innerHTML = `<td class="time-col">${slot.label}</td><td colspan="5">Lunch</td>`;
@@ -117,11 +158,9 @@ function generateDynamicGridRows() {
             return;
         }
 
-        // 3. Build typical subject lessons or Friday Activity cells
         let rowHTML = `<td class="time-col">${slot.label}</td>`;
 
         daysOfWeek.forEach(day => {
-            // Check for Friday afternoon Class Activity exceptions (Periods 7 and 8)
             if (day === "Fri" && (slot.periodNum === 7 || slot.periodNum === 8)) {
                 if (slot.periodNum === 7) {
                     rowHTML += `<td rowspan="2" class="fixed-activity-cell">Class Activity</td>`;
@@ -129,7 +168,6 @@ function generateDynamicGridRows() {
                 return;
             }
 
-            // Normal lesson grid cell with built-in split layout structures
             rowHTML += `
                 <td class="cell" data-day="${day}" data-period="${slot.periodNum}">
                     <div class="split-wrapper">
@@ -152,25 +190,25 @@ function generateDynamicGridRows() {
     });
 }
 
-// ==========================================================================
-// 4. Interface State Synchronization
-// ==========================================================================
 function syncMetadataToUI() {
     const currentClassID = AppState.currentClass;
     const classInfo = AppState.schoolData.classes[currentClassID];
 
     if (!classInfo) return;
 
-    // Sync header elements cleanly exactly matching your blueprint layout rules
+    // Run layout modifications
     document.getElementById("school-year-val").textContent = AppState.schoolYear;
     document.getElementById("class-id-val").textContent = currentClassID;
-    document.getElementById("homeroom-val").textContent = classInfo.homeroom || "";
+    document.getElementById("homeroom-val").textContent = classInfo.homeroom || "None Assigned";
     
     const teachersList = classInfo.teachers || [];
-    document.getElementById("class-teacher-val").textContent = teachersList.join(" / ");
+    document.getElementById("class-teacher-val").textContent = teachersList.length > 0 ? teachersList.join(" / ") : "None Assigned";
+
+    // Update staff headcount tally
+    const staffCount = Object.keys(AppState.schoolData.teachersRoster).length;
+    document.getElementById("staff-count").textContent = staffCount;
 }
 
-// Save backup down to a local storage file configuration
 function downloadSystemDataFile() {
     const dataString = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(AppState.schoolData, null, 2));
     const downloader = document.createElement('a');
