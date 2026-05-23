@@ -28,6 +28,26 @@
                 </select>
             </div>
             <button id="backup-data-btn" class="btn-dark">Export Year Data Backup</button>
+                <div class="admin-section">
+            <h3>Add Subject Budget per Grade</h3>
+            <div class="form-grid">
+                <select id="input-sub-grade">
+                    <option value="">Select Grade</option>
+                    <option value="Grade 1">Grade 1 (1A-1D)</option>
+                    <option value="Grade 2">Grade 2 (2A-2D)</option>
+                    <option value="Grade 3">Grade 3 (3A-3C)</option>
+                </select>
+                <input type="text" id="input-sub-name" placeholder="Subject Name (e.g., MATH)">
+                <input type="text" id="input-sub-teacher" placeholder="Teacher Initials (e.g., TH)">
+                <input type="number" id="input-sub-periods" placeholder="Total Periods per Cycle" min="1" max="20">
+                <label style="font-size:12px; display:flex; align-items:center; gap:4px;">
+                    <input type="checkbox" id="input-sub-double"> Requires Double Lesson
+                </label>
+                <button id="add-subject-btn" class="btn-action">Add Subject Rule</button>
+            </div>
+            <div class="roster-counter">Active Curriculum Rules: <span id="subject-count">0</span></div>
+        </div>
+
         </div>
 
         <div class="admin-section">

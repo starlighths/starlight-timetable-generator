@@ -24,6 +24,7 @@ const defaultDataSkeleton = {
     },
     // The Master Teacher Directory Index (Initials -> Data mapping)
     teachersRoster: {},
+    subjectsCurriculum: {}
     savedGrids: {}
 };
 
@@ -72,7 +73,45 @@ function persistDatabaseState() {
 // ==========================================================================
 // 3. Interactive Management Event Interceptors
 // ==========================================================================
-function setupInterfaceListeners() {
+function setupInterfaceListeners(    // Subject Curriculum Registration Actions
+    document.getElementById("add-subject-btn").addEventListener("click", () => {
+        const grade = document.getElementById("input-sub-grade").value;
+        const subName = document.getElementById("input-sub-name").value.trim().toUpperCase();
+        const teacherInitials = document.getElementById("input-sub-teacher").value.trim().toUpperCase();
+        const periodBudget = document.getElementById("input-sub-periods").value;
+        const requiresDouble = document.getElementById("input-sub-double").checked;
+
+        if (!grade || !subName || !teacherInitials || !periodBudget) {
+            alert("Please fill out all subject parameter requirements.");
+            return;
+        }
+
+        // Verify if teacher exists in roster first as a validation check
+        if (!AppState.schoolData.teachersRoster[teacherInitials]) {
+            alert(`Warning: Teacher with initials "${teacherInitials}" is not registered in the staff roster yet. You can still save this rule, but ensure you register them later.`);
+        }
+
+        // Generate a unique tracking key for this subject rule
+        const ruleID = `${grade}_${subName}_${teacherInitials}`;
+        
+        AppState.schoolData.subjectsCurriculum[ruleID] = {
+            grade: grade,
+            subjectName: subName,
+            teacherInitials: teacherInitials,
+            totalPeriods: parseInt(periodBudget, 10),
+            requiresDouble: requiresDouble
+        };
+
+        persistDatabaseState();
+        syncMetadataToUI();
+
+        // Reset fields
+        document.getElementById("input-sub-name").value = "";
+        document.getElementById("input-sub-teacher").value = "";
+        document.getElementById("input-sub-periods").value = "";
+        document.getElementById("input-sub-double").checked = false;
+    });
+) {
     // Dropdown structural layout tracking
     const classSelector = document.getElementById("class-view-selector");
     if (classSelector) {
@@ -193,6 +232,8 @@ function generateDynamicGridRows() {
 function syncMetadataToUI() {
     const currentClassID = AppState.currentClass;
     const classInfo = AppState.schoolData.classes[currentClassID];
+    const subCount = Object.keys(AppState.schoolData.subjectsCurriculum || {}).length;
+    document.getElementById("subject-count").textContent = subCount;
 
     if (!classInfo) return;
 
