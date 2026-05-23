@@ -16,7 +16,7 @@ const defaultDataSkeleton = {
         "3A": { teachers: [] }, "3B": { teachers: [] }, "3C": { teachers: [] }
     },
     teachersRoster: {},
-    subjectsCurriculum: {}, // Budget rules per individual class
+    subjectsCurriculum: {}, 
     savedGrids: {}          
 };
 
@@ -32,13 +32,13 @@ const timeSlots = [
 
 const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 
-// // Official Mapping Matrix with structural grouping and layout specifications
+// Official Mapping Matrix with structural grouping and layout specifications
 const subjectsMetaIndex = {
     "korean": { short: "Korean", requiresMeeting: true, isGrouped: false },
-    "kf": { short: "KF", requiresMeeting: false, isGrouped: true }, // Splits with language groups
-    "eng": { short: "Eng", requiresMeeting: true, isGrouped: true }, // Cross-class block splits
+    "kf": { short: "KF", requiresMeeting: false, isGrouped: true }, 
+    "eng": { short: "Eng", requiresMeeting: true, isGrouped: true }, 
     "eng(sp)": { short: "Eng(Sp)", requiresMeeting: false, isGrouped: true },
-    "math": { short: "Math", requiresMeeting: true, isGrouped: true }, // Cross-class block splits
+    "math": { short: "Math", requiresMeeting: true, isGrouped: true }, 
     "ih": { short: "IH", requiresMeeting: false, isGrouped: false, floors: ["2", "3"] },
     "sst": { short: "SST", requiresMeeting: true, isGrouped: false, floors: ["1"] },
     "hist": { short: "Hist", requiresMeeting: true, isGrouped: false, floors: ["1"] },
@@ -48,17 +48,17 @@ const subjectsMetaIndex = {
     "b&e": { short: "B&E", requiresMeeting: true, isGrouped: false, floors: ["1"] },
     "bus": { short: "Bus", requiresMeeting: false, isGrouped: false, floors: ["2", "3"] },
     "music": { short: "Music", requiresMeeting: false, isGrouped: false },
-    "tech": { short: "Tech", requiresMeeting: false, isGrouped: false },
+    "tech": { short: "Tech", requiresMeeting: false, isGrouped: false }, 
     "arts": { short: "Arts", requiresMeeting: false, isGrouped: false },
-    "pe": { short: "PE", requiresMeeting: false, isGrouped: false },
+    "pe": { short: "PE", requiresMeeting: false, isGrouped: false },     
     "dance": { short: "Dance", requiresMeeting: false, isGrouped: true, elective: true },
     "m&b": { short: "M&B", requiresMeeting: false, isGrouped: true, elective: true },
     "drama": { short: "Drama", requiresMeeting: false, isGrouped: true, elective: true },
-    "kl": { short: "KL", requiresMeeting: false, isGrouped: true, elective: true, floors: ["1"] },
-    "el": { short: "EL", requiresMeeting: false, isGrouped: true, elective: true, floors: ["1"] }
+    "kl": { short: "KL", requiresMeeting: false, isGrouped: true, elective: true, floors: ["1"] }, 
+    "el": { short: "EL", requiresMeeting: false, isGrouped: true, elective: true, floors: ["1"] }  
 };
 
-// Hardcoded master cross-classed block band definitions from the 262Ledger
+// Hardcoded master cross-classed block band definitions from the 2627 official ledger
 const crossClassBands = [
     // --- ALL-GRADE ELECTIVE BLOCK CLUSTERS (Full Grade Locks Together) ---
     { classes: ["1A", "1B", "1C", "1D"], subjects: ["dance", "m&b", "drama", "kl", "el"] },
@@ -68,8 +68,8 @@ const crossClassBands = [
     // --- S1 (GRADE 1) SEPARATE MAIN & PE BLOCKS ---
     { classes: ["1A", "1B"],             subjects: ["korean"] },
     { classes: ["1A", "1B"],             subjects: ["kf"] },
-    { classes: ["1C", "1D"],             subjects: ["eng"] },   // English standalone block
-    { classes: ["1C", "1D"],             subjects: ["math"] },  // Math standalone block
+    { classes: ["1C", "1D"],             subjects: ["eng"] },   
+    { classes: ["1C", "1D"],             subjects: ["math"] },  
     { classes: ["1A", "1C"],             subjects: ["pe"] },
     { classes: ["1B", "1D"],             subjects: ["pe"] },
 
@@ -77,8 +77,8 @@ const crossClassBands = [
     { classes: ["2A", "2B"],             subjects: ["korean"] },
     { classes: ["2A", "2B"],             subjects: ["kf"] },
     { classes: ["2A", "2B"],             subjects: ["kr.hist"] },
-    { classes: ["2C", "2D"],             subjects: ["eng"] },   // English standalone block
-    { classes: ["2C", "2D"],             subjects: ["math"] },  // Math standalone block
+    { classes: ["2C", "2D"],             subjects: ["eng"] },   
+    { classes: ["2C", "2D"],             subjects: ["math"] },  
     { classes: ["2A", "2D"],             subjects: ["pe"] },
     { classes: ["2B", "2C"],             subjects: ["pe"] },
 
@@ -91,8 +91,8 @@ const crossClassBands = [
 // 2. Automated Smart Room Number Calculation Formula
 // ==========================================================================
 function calculateRoomNumber(classID) {
-    const gradeLetter = classID.charAt(0); // "1", "2", or "3"
-    const trackLetter = classID.charAt(1); // "A", "B", "C", or "D"
+    const gradeLetter = classID.charAt(0); 
+    const trackLetter = classID.charAt(1); 
 
     let floor = "3"; 
     if (gradeLetter === "2") floor = "4"; 
@@ -212,7 +212,7 @@ function setupInterfaceListeners() {
         const dept = document.getElementById("input-t-dept").value;
 
         if (!initials) return;
-        if (!full) full = initials; // Fallback to initials if full name input is blank
+        if (!full) full = initials; 
 
         AppState.schoolData.teachersRoster[initials] = { fullName: full, department: dept };
         persistDatabaseState();
@@ -222,7 +222,7 @@ function setupInterfaceListeners() {
     });
 
     document.getElementById("add-subject-btn").addEventListener("click", () => {
-        const targetClass = document.getElementById("input-sub-grade").value; // e.g., "1A"
+        const targetClass = document.getElementById("input-sub-grade").value; 
         const subInput = document.getElementById("input-sub-name").value.trim().toLowerCase();
         const initials = document.getElementById("input-sub-teacher").value.trim().toUpperCase();
         const periods = document.getElementById("input-sub-periods").value;
@@ -235,14 +235,12 @@ function setupInterfaceListeners() {
             return;
         }
 
-        // Check floor constraints using the class prefix number (1, 2, or 3)
         const classFloorPrefix = targetClass.charAt(0);
         if (subMeta.floors && !subMeta.floors.includes(classFloorPrefix)) {
             alert(`Tier Restriction Conflict: ${subMeta.short} cannot be assigned to an S${classFloorPrefix} Class (${targetClass}).`);
             return;
         }
 
-        // Unique tracking key bound directly to the exact target class (e.g., 1A_math_TH)
         const ruleID = `${targetClass}_${subInput}_${initials}`;
         AppState.schoolData.subjectsCurriculum[ruleID] = {
             targetClass: targetClass, subjectKey: subInput, shortForm: subMeta.short, teacherInitials: initials, totalPeriods: parseInt(periods, 10)
@@ -255,8 +253,6 @@ function setupInterfaceListeners() {
         document.getElementById("input-sub-periods").value = "";
     });
 
-    // Timetable Assignment Clicking Node Interceptor (Handles Full-Width Merging & Cross-Class Banding)
-    // Timetable Assignment Clicking Node Interceptor (Handles Full-Width Merging & Cross-Class Banding)
     document.getElementById("timetable-print-canvas").addEventListener("click", (e) => {
         const targetSplit = e.target.closest(".split-left, .split-right");
         if (!targetSplit) return;
@@ -268,11 +264,9 @@ function setupInterfaceListeners() {
         const sp = targetSplit.dataset.split;
         const allocationKey = `${AppState.currentClass}_W${wk}_${dy}_P${pd}_${sp}`;
 
-        // Eraser Clear Mode Execution
         if (!AppState.selectedTokenNode && AppState.schoolData.savedGrids[allocationKey]) {
             const dataToWipe = AppState.schoolData.savedGrids[allocationKey];
             
-            // If it was a cross-classed subject or non-grouped subject, find and clean linked nodes too
             Object.keys(AppState.schoolData.savedGrids).forEach(key => {
                 if (key.includes(`_W${wk}_${dy}_P${pd}_`)) {
                     const match = AppState.schoolData.savedGrids[key];
@@ -296,7 +290,6 @@ function setupInterfaceListeners() {
         const tokenIndex = AppState.selectedTokenNode.dataset.tokenindex;
         const subMeta = subjectsMetaIndex[subKey];
 
-        // --- TEACHER CONFLICT CHECK ENGINE ---
         let conflictDetected = false;
         let conflictingClass = "";
         Object.entries(AppState.schoolData.savedGrids).forEach(([exKey, exData]) => {
@@ -311,22 +304,18 @@ function setupInterfaceListeners() {
             return;
         }
 
-        // --- DETERMINING ALLOCATION BOUNDS FROM MASTER LEDGER ---
         let targetClassesToFill = [AppState.currentClass];
         
-        // Scan master matrix array to find if this combination triggers a multi-class lock
         const activeBandRule = crossClassBands.find(band => 
             band.classes.includes(AppState.currentClass) && band.subjects.includes(subKey)
         );
 
         if (activeBandRule) {
-            targetClassesToFill = activeBandRule.classes; // Automatically mirror assignment across all grouped sister classes!
+            targetClassesToFill = activeBandRule.classes; 
         }
 
-        // Save layout assignment configurations to the database registry state
         targetClassesToFill.forEach(cls => {
             if (subMeta && subMeta.isGrouped === false) {
-                // Single-period full-width subjects fill both grid splits block-wide
                 AppState.schoolData.savedGrids[`${cls}_W${wk}_${dy}_P${pd}_left`] = {
                     subjectKey: subKey, shortForm: shortForm, teacherInitials: teacherInitials, ruleID: ruleId, tokenIndex: tokenIndex
                 };
@@ -334,7 +323,6 @@ function setupInterfaceListeners() {
                     subjectKey: subKey, shortForm: shortForm, teacherInitials: teacherInitials, ruleID: ruleId, tokenIndex: tokenIndex
                 };
             } else {
-                // Grouped track splits fill the individual column drop target area
                 AppState.schoolData.savedGrids[`${cls}_W${wk}_${dy}_P${pd}_${sp}`] = {
                     subjectKey: subKey, shortForm: shortForm, teacherInitials: teacherInitials, ruleID: ruleId, tokenIndex: tokenIndex
                 };
@@ -345,6 +333,7 @@ function setupInterfaceListeners() {
         AppState.selectedTokenNode = null; 
         syncMetadataToUI();
     });
+
     document.getElementById("wipe-data-btn").addEventListener("click", () => {
         if (confirm("Are you sure you want to completely clear the database layout parameters?")) {
             AppState.schoolData = JSON.parse(JSON.stringify(defaultDataSkeleton));
@@ -353,23 +342,17 @@ function setupInterfaceListeners() {
         }
     });
 
-    document.getElementById("backup-data-btn").addEventListener("downloadSystemDataFile", downloadSystemDataFile);
-    const backupBtn = document.getElementById("backup-data-btn");
-    if (backupBtn) backupBtn.addEventListener("click", downloadSystemDataFile);
+    document.getElementById("backup-data-btn").addEventListener("click", downloadSystemDataFile);
 }
 
 // ==========================================================================
-
-// ==========================================================================
-// ==========================================================================
-// 6. Global Synchronization Engine (Fixed Render & Safe Lookup Sweep)
+// 6. Global Synchronization Engine
 // ==========================================================================
 function syncMetadataToUI() {
     const cls = AppState.currentClass;
     const info = AppState.schoolData.classes[cls];
     const computedRoom = calculateRoomNumber(cls);
 
-    // Sync basic template headers safely
     document.querySelectorAll(".school-year-val").forEach(el => el.textContent = AppState.schoolYear);
     document.querySelectorAll(".class-id-val").forEach(el => el.textContent = `Class ${cls}`);
     document.querySelectorAll(".homeroom-val").forEach(el => el.textContent = `RM${computedRoom}`);
@@ -381,17 +364,13 @@ function syncMetadataToUI() {
     document.getElementById("staff-count").textContent = Object.keys(AppState.schoolData.teachersRoster).length;
     document.getElementById("subject-count").textContent = Object.keys(AppState.schoolData.subjectsCurriculum).length;
 
-    // Extract raw level prefix ('1', '2', or '3') to safely normalize current tracking bounds
-    const classFloorPrefix = cls.charAt(0); 
-
-    // Rebuild Unassigned Dock tokens tightly matched to this specific classroom class ID
     const dock = document.getElementById("dock-slots-target");
     if (dock) {
         dock.innerHTML = "";
         const activeAllocations = Object.values(AppState.schoolData.savedGrids);
 
         Object.entries(AppState.schoolData.subjectsCurriculum).forEach(([ruleID, rule]) => {
-            if (rule.targetClass !== cls) return; // Only show tokens belonging to the active class view
+            if (rule.targetClass !== cls) return; 
 
             for (let i = 0; i < rule.totalPeriods; i++) {
                 const isAllocated = activeAllocations.some(a => a.ruleID === ruleID && parseInt(a.tokenIndex, 10) === i);
@@ -417,7 +396,6 @@ function syncMetadataToUI() {
         });
     }
 
-    // Reset grid structural wrapper elements before painting current database allocations
     document.querySelectorAll(".cell .split-wrapper").forEach(w => {
         w.style.display = "grid";
         w.style.gridTemplateColumns = "1fr 1fr";
@@ -429,9 +407,8 @@ function syncMetadataToUI() {
         n.querySelector(".initials-label").textContent = "";
     });
 
-    // Repaint all active allocations stored in memory onto the visual tables
     Object.entries(AppState.schoolData.savedGrids).forEach(([key, data]) => {
-        if (!key.startsWith(`${cls}_`)) return; // Only process rows allocated to this class
+        if (!key.startsWith(`${cls}_`)) return; 
         const parts = key.split("_");
         const wk = parts[1].replace("W", "");
         const dy = parts[2];
@@ -440,14 +417,12 @@ function syncMetadataToUI() {
 
         const match = document.querySelector(`.cell[data-week="${wk}"][data-day="${dy}"][data-period="${pd}"]`);
         if (match) {
-            // SAFE LOOKUP CHECK: Scan our updated master metadata index securely
             const subMeta = subjectsMetaIndex[data.subjectKey.toLowerCase()];
             const wrapper = match.querySelector(".split-wrapper");
             const leftNode = match.querySelector(`[data-split="left"]`);
             const rightNode = match.querySelector(`[data-split="right"]`);
 
             if (subMeta && subMeta.isGrouped === false) {
-                // If subject is single-room/non-grouped, hide right column and let left stretch full-width
                 if (wrapper && leftNode && rightNode) {
                     wrapper.style.gridTemplateColumns = "1fr";
                     rightNode.style.display = "none";
@@ -457,33 +432,12 @@ function syncMetadataToUI() {
                     leftNode.querySelector(".initials-label").textContent = data.teacherInitials;
                 }
             } else {
-                // Otherwise draw standard half-column tracking block split options
                 const splitNode = match.querySelector(`[data-split="${sp}"]`);
                 if (splitNode) {
                     splitNode.querySelector(".room-label").textContent = computedRoom;
                     splitNode.querySelector(".subject-label").textContent = data.shortForm;
                     splitNode.querySelector(".initials-label").textContent = data.teacherInitials;
                 }
-            }
-        }
-    });
-}
-
-    Object.entries(AppState.schoolData.savedGrids).forEach(([key, data]) => {
-        if (!key.startsWith(`${cls}_`)) return;
-        const parts = key.split("_");
-        const wk = parts[1].replace("W","");
-        const dy = parts[2];
-        const pd = parts[3].replace("P","");
-        const sp = parts[4];
-
-        const match = document.querySelector(`.cell[data-week="${wk}"][data-day="${dy}"][data-period="${pd}"]`);
-        if (match) {
-            const splitNode = match.querySelector(`[data-split="${sp}"]`);
-            if (splitNode) {
-                splitNode.querySelector(".room-label").textContent = computedRoom;
-                splitNode.querySelector(".subject-label").textContent = data.shortForm;
-                splitNode.querySelector(".initials-label").textContent = data.teacherInitials;
             }
         }
     });
