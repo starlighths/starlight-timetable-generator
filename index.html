@@ -14,49 +14,29 @@
             <div class="control-group">
                 <label for="class-view-selector">Select Active Class:</label>
                 <select id="class-view-selector">
-                    <option value="1A">Grade 1A</option>
-                    <option value="1B">Grade 1B</option>
-                    <option value="1C">Grade 1C</option>
-                    <option value="1D">Grade 1D</option>
-                    <option value="2A">Grade 2A</option>
-                    <option value="2B">Grade 2B</option>
-                    <option value="2C">Grade 2C</option>
-                    <option value="2D">Grade 2D</option>
-                    <option value="3A">Grade 3A</option>
-                    <option value="3B">Grade 3B</option>
-                    <option value="3C">Grade 3C</option>
+                    <option value="1A">S1 - Grade 1A</option>
+                    <option value="1B">S1 - Grade 1B</option>
+                    <option value="1C">S1 - Grade 1C</option>
+                    <option value="1D">S1 - Grade 1D</option>
+                    <option value="2A">S2 - Grade 2A</option>
+                    <option value="2B">S2 - Grade 2B</option>
+                    <option value="2C">S2 - Grade 2C</option>
+                    <option value="2D">S2 - Grade 2D</option>
+                    <option value="3A">S3 - Grade 3A</option>
+                    <option value="3B">S3 - Grade 3B</option>
+                    <option value="3C">S3 - Grade 3C</option>
                 </select>
             </div>
             <button id="backup-data-btn" class="btn-dark">Export Year Data Backup</button>
-                <div class="admin-section">
-            <h3>Add Subject Budget per Grade</h3>
-            <div class="form-grid">
-                <select id="input-sub-grade">
-                    <option value="">Select Grade</option>
-                    <option value="Grade 1">Grade 1 (1A-1D)</option>
-                    <option value="Grade 2">Grade 2 (2A-2D)</option>
-                    <option value="Grade 3">Grade 3 (3A-3C)</option>
-                </select>
-                <input type="text" id="input-sub-name" placeholder="Subject Name (e.g., MATH)">
-                <input type="text" id="input-sub-teacher" placeholder="Teacher Initials (e.g., TH)">
-                <input type="number" id="input-sub-periods" placeholder="Total Periods per Cycle" min="1" max="20">
-                <label style="font-size:12px; display:flex; align-items:center; gap:4px;">
-                    <input type="checkbox" id="input-sub-double"> Requires Double Lesson
-                </label>
-                <button id="add-subject-btn" class="btn-action">Add Subject Rule</button>
-            </div>
-            <div class="roster-counter">Active Curriculum Rules: <span id="subject-count">0</span></div>
-        </div>
-
+            <button id="wipe-data-btn" style="background-color: #a30000; color: white; border: none; padding: 7px 12px; border-radius: 4px; cursor: pointer; margin-left: 10px;">Reset Whole Database</button>
         </div>
 
         <div class="admin-section">
-            <h3>Configure Class Meta</h3>
+            <h3>Configure Class Teachers</h3>
             <div class="form-grid">
-                <input type="text" id="input-homeroom" placeholder="Homeroom Room (e.g., RM101)">
-                <input type="text" id="input-ct1" placeholder="Class Teacher 1 (Full Name)">
-                <input type="text" id="input-ct2" placeholder="Class Teacher 2 (Full Name, Optional)">
-                <button id="save-class-meta-btn" class="btn-action">Update Class Info</button>
+                <input type="text" id="input-ct1" placeholder="Class Teacher 1 Initials (e.g., TH)">
+                <input type="text" id="input-ct2" placeholder="Class Teacher 2 Initials (Optional)">
+                <button id="save-class-meta-btn" class="btn-action">Assign Teachers</button>
             </div>
         </div>
 
@@ -66,64 +46,135 @@
                 <input type="text" id="input-t-initials" placeholder="Initials (e.g., TH)" maxlength="4">
                 <input type="text" id="input-t-fullname" placeholder="Full Name (e.g., Tom Harrison)">
                 <select id="input-t-dept">
-                    <option value="General">Select Department</option>
-                    <option value="Languages">Languages Department</option>
-                    <option value="Mathematics">Mathematics Department</option>
-                    <option value="Sciences">Sciences Department</option>
-                    <option value="Humanities">Humanities Department</option>
-                    <option value="Arts & PE">Arts & PE Department</option>
+                    <option value="General">Select Main Committee/Role</option>
+                    <option value="Principals/VPs/APs">Principals / VPs / APs</option>
+                    <option value="School Management">School Management</option>
+                    <option value="School Development">School Development</option>
+                    <option value="Level Directors">Level Directors</option>
+                    <option value="Curriculum">Curriculum</option>
+                    <option value="Examination">Examination</option>
+                    <option value="Pastoral Care">Pastoral Care</option>
+                    <option value="Learning Support">Learning Support</option>
+                    <option value="Careers Adviser(s)">Careers Adviser(s)</option>
+                    <option value="IT Unit">IT Unit</option>
+                    <option value="Parent Support">Parent Support</option>
+                    <option value="Health & Safety">Health & Safety</option>
                 </select>
                 <button id="add-teacher-btn" class="btn-action">Register Teacher</button>
             </div>
             <div class="roster-counter">Registered Staff: <span id="staff-count">0</span></div>
         </div>
+
+        <div class="admin-section">
+            <h3>Add Subject Budget per Grade</h3>
+            <div class="form-grid">
+                <select id="input-sub-grade">
+                    <option value="">Select Target Level</option>
+                    <option value="Grade 1">S1 (Grade 1A - 1D)</option>
+                    <option value="Grade 2">S2 (Grade 2A - 2D)</option>
+                    <option value="Grade 3">S3 (Grade 3A - 3C)</option>
+                </select>
+                <input type="text" id="input-sub-name" placeholder="Subject Shortform (e.g., Korean, KF, SST)">
+                <input type="text" id="input-sub-teacher" placeholder="Teacher Initials">
+                <input type="number" id="input-sub-periods" placeholder="Total Periods per Cycle" min="1" max="20">
+                <button id="add-subject-btn" class="btn-action">Add Subject Rule</button>
+            </div>
+            <div class="roster-counter">Active Curriculum Rules: <span id="subject-count">0</span></div>
+        </div>
     </div>
 
-    <div class="timetable-page" id="master-timetable-view">
+    <div id="timetable-print-canvas">
         
-        <div class="timetable-header">
-            <h1 class="school-title">Starlight High School</h1>
-            <h2 class="cycle-title"><u>Class Timetable (Week 1)</u></h2>
+        <div class="timetable-page" id="view-week-1">
+            <div class="timetable-header">
+                <h1 class="school-title">Starlight High School</h1>
+                <h2 class="cycle-title"><u>Class Timetable (Week 1)</u></h2>
+            </div>
+
+            <div class="meta-container">
+                <div class="meta-left">
+                    <div>School Year: <span class="school-year-val">2026-2027</span></div>
+                    <div>Class Teacher: <span class="class-teacher-val">None Assigned</span></div>
+                </div>
+                <div class="meta-right">
+                    <div>Class: <span class="class-id-val">1A</span></div>
+                    <div>Homeroom: <span class="homeroom-val">None Assigned</span></div>
+                </div>
+            </div>
+
+            <table class="timetable-grid">
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">Time</th>
+                        <th style="width: 17%;">Mon</th>
+                        <th style="width: 17%;">Tue</th>
+                        <th style="width: 17%;">Wed</th>
+                        <th style="width: 17%;">Thu</th>
+                        <th style="width: 17%;">Fri</th>
+                    </tr>
+                </thead>
+                <tbody class="timetable-body-target" data-week="1">
+                    <tr class="fixed-row">
+                        <td class="time-col">08:00-08:15</td>
+                        <td>Assembly</td>
+                        <td>Class Teacher</td>
+                        <td>Assembly</td>
+                        <td>Class Teacher</td>
+                        <td>Class Teacher</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
-        <div class="meta-container">
-            <div class="meta-left">
-                <div>School Year: <span id="school-year-val">2026-2027</span></div>
-                <div>Class Teacher: <span id="class-teacher-val">None Assigned</span></div>
+        <div class="timetable-page" id="view-week-2">
+            <div class="timetable-header">
+                <h1 class="school-title">Starlight High School</h1>
+                <h2 class="cycle-title"><u>Class Timetable (Week 2)</u></h2>
             </div>
-            <div class="meta-right">
-                <div>Class: <span id="class-id-val">1A</span></div>
-                <div>Homeroom: <span id="homeroom-val">None Assigned</span></div>
+
+            <div class="meta-container">
+                <div class="meta-left">
+                    <div>School Year: <span class="school-year-val">2026-2027</span></div>
+                    <div>Class Teacher: <span class="class-teacher-val">None Assigned</span></div>
+                </div>
+                <div class="meta-right">
+                    <div>Class: <span class="class-id-val">1A</span></div>
+                    <div>Homeroom: <span class="homeroom-val">None Assigned</span></div>
+                </div>
             </div>
+
+            <table class="timetable-grid">
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">Time</th>
+                        <th style="width: 17%;">Mon</th>
+                        <th style="width: 17%;">Tue</th>
+                        <th style="width: 17%;">Wed</th>
+                        <th style="width: 17%;">Thu</th>
+                        <th style="width: 17%;">Fri</th>
+                    </tr>
+                </thead>
+                <tbody class="timetable-body-target" data-week="2">
+                    <tr class="fixed-row">
+                        <td class="time-col">08:00-08:15</td>
+                        <td>Assembly</td>
+                        <td>Class Teacher</td>
+                        <td>Assembly</td>
+                        <td>Class Teacher</td>
+                        <td>Class Teacher</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
-        <table class="timetable-grid">
-            <thead>
-                <tr>
-                    <th style="width: 15%;">Time</th>
-                    <th style="width: 17%;">Mon</th>
-                    <th style="width: 17%;">Tue</th>
-                    <th style="width: 17%;">Wed</th>
-                    <th style="width: 17%;">Thu</th>
-                    <th style="width: 17%;">Fri</th>
-                </tr>
-            </thead>
-            <tbody id="timetable-body-week1">
-                <tr class="fixed-row">
-                    <td class="time-col">08:00-08:15</td>
-                    <td>Assembly</td>
-                    <td>Class Teacher</td>
-                    <td>Assembly</td>
-                    <td>Class Teacher</td>
-                    <td>Class Teacher</td>
-                </tr>
-            </tbody>
-        </table>
     </div>
 
     <div class="holding-dock" id="lessons-holding-tray">
-        <h3>Unassigned Lessons Tray & Counter</h3>
+        <h3>Unassigned Lesson Budget Staging Tray (Click a Token to Highlight, Then Click an Empty Grid Split Column to Assign)</h3>
         <div class="dock-container" id="dock-slots-target"></div>
+        <div id="eraser-zone" style="margin-top: 15px; padding: 12px; background-color: #fff0f0; border: 2px dashed #a30000; text-align: center; color: #a30000; font-weight: bold; cursor: pointer; border-radius: 4px;">
+            🗑️ CLEARING MODE: Click an assigned element inside the grid tables above to return it instantly back down to this Tray
+        </div>
     </div>
 
     <script src="app.js"></script>

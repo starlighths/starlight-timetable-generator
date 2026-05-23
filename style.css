@@ -306,3 +306,77 @@ body {
     font-size: 11px;
     color: #888888;
 }
+/* Administrative Dashboard Flex Grid Options */
+.admin-dashboard {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch !important;
+}
+
+.admin-section {
+    border-bottom: 1px dashed #e0e0e0;
+    padding-bottom: 12px;
+}
+
+.admin-section:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.admin-section h3 {
+    margin: 0 0 8px 0;
+    font-size: 13px;
+    color: #666666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Modern Input Fields & Grid Setup */
+.form-grid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.form-grid input, .form-grid select {
+    padding: 6px 10px;
+    font-size: 13px;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    flex: 1;
+    min-width: 160px;
+}
+
+/* Dashboard Action Buttons */
+.btn-dark {
+    background-color: #333333;
+    color: #ffffff;
+    border: none;
+    padding: 7px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.btn-action {
+    background-color: #ffffff;
+    color: #222222;
+    border: 1px solid #222222;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.btn-action:hover {
+    background-color: #222222;
+    color: #ffffff;
+}
+
+.roster-counter {
+    margin-top: 6px;
+    font-size: 11px;
+    color: #888888;
+}
