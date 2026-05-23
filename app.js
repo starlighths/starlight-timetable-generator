@@ -24,11 +24,10 @@ const defaultDataSkeleton = {
         "3C": { homeroom: "RM303", teachers: ["Kevin Bacon"] }
         // Note: 3D is deliberately omitted from active list per requirements
     },
-    // Timetable allocations database organized by: Class -> Week -> Day -> Period -> Left/Right Split
     savedGrids: {}
 };
 
-// Defining the time blocks for standard lesson matrix rendering
+// Defining the time blocks matching the image specifications
 const timeSlots = [
     { label: "08:15-09:00", periodNum: 1 },
     { label: "09:00-09:45", periodNum: 2 },
@@ -95,7 +94,10 @@ function generateDynamicGridRows() {
     const tableBody = document.getElementById("timetable-body-week1");
     if (!tableBody) return;
 
-    // We start processing rows *after* the hardcoded 08:00 morning registration row
+    // Clear any existing dynamic rows first to avoid duplication bugs
+    const standardRows = tableBody.querySelectorAll("tr:not(.fixed-row)");
+    standardRows.forEach(row => row.remove());
+
     timeSlots.forEach(slot => {
         const row = document.createElement("tr");
 
@@ -124,7 +126,6 @@ function generateDynamicGridRows() {
                 if (slot.periodNum === 7) {
                     rowHTML += `<td rowspan="2" class="fixed-activity-cell">Class Activity</td>`;
                 }
-                // Period 8 skipped automatically because the Period 7 rowspan covers it
                 return;
             }
 
@@ -160,19 +161,16 @@ function syncMetadataToUI() {
 
     if (!classInfo) return;
 
-    // Sync header elements
+    // Sync header elements cleanly exactly matching your blueprint layout rules
     document.getElementById("school-year-val").textContent = AppState.schoolYear;
-    document.getElementById("class-id-val").textContent = `${currentClassID}-Class`;
+    document.getElementById("class-id-val").textContent = currentClassID;
     document.getElementById("homeroom-val").textContent = classInfo.homeroom || "";
     
-    // Format and handle multiple class teachers (Max 2 display limit format)
     const teachersList = classInfo.teachers || [];
     document.getElementById("class-teacher-val").textContent = teachersList.join(" / ");
-
-    // Future hook: pull grid items from AppState.schoolData.savedGrids and push into cells
 }
 
-// Save backup down to a .json file for safe repository archives
+// Save backup down to a local storage file configuration
 function downloadSystemDataFile() {
     const dataString = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(AppState.schoolData, null, 2));
     const downloader = document.createElement('a');
