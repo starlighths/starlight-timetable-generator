@@ -132,10 +132,29 @@ function persistDatabaseState() {
     const key = `StarlightTimetable_${AppState.schoolYear}`;
     localStorage.setItem(key, JSON.stringify(AppState.schoolData));
 }
+// ==========================================================================
+// 3.5 Backup Utility Hoisting Fix
+// ==========================================================================
+function downloadSystemDataFile() {
+    const dataString = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(AppState.schoolData, null, 2));
+    const downloader = document.createElement('a');
+    downloader.setAttribute("href", dataString);
+    downloader.setAttribute("download", `starlight_backup_${AppState.schoolYear}.json`);
+    document.body.appendChild(downloader);
+    downloader.click();
+    downloader.remove();
+}
 
+// 4. Interface Grid Structural Renderer
+// ==========================================================================
+function generateGridStructuralLayout(wk) {
+...
+// ==========================================================================
 // ==========================================================================
 // 4. Interface Grid Structural Renderer
 // ==========================================================================
+function generateGridStructuralLayout(wk) {
+...
 function generateGridStructuralLayout(wk) {
     const tableBody = document.querySelector(`.timetable-body-target[data-week="${wk}"]`);
     if (!tableBody) return;
@@ -441,14 +460,4 @@ function syncMetadataToUI() {
             }
         }
     });
-}
-
-function downloadSystemDataFile() {
-    const dataString = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(AppState.schoolData, null, 2));
-    const downloader = document.createElement('a');
-    downloader.setAttribute("href", dataString);
-    downloader.setAttribute("download", `starlight_backup_${AppState.schoolYear}.json`);
-    document.body.appendChild(downloader);
-    downloader.click();
-    downloader.remove();
 }
