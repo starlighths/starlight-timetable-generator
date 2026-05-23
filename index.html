@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starlight High School Timetable Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="admin-dashboard">
+        <div class="control-group">
+            <label for="class-view-selector">Select Active Class Layout:</label>
+            <select id="class-view-selector">
+                <option value="1A">Grade 1A</option>
+                <option value="1B">Grade 1B</option>
+                <option value="1C">Grade 1C</option>
+                <option value="1D">Grade 1D</option>
+                <option value="2A">Grade 2A</option>
+                <option value="2B">Grade 2B</option>
+                <option value="2C">Grade 2C</option>
+                <option value="2D">Grade 2D</option>
+                <option value="3A">Grade 3A</option>
+                <option value="3B">Grade 3B</option>
+                <option value="3C">Grade 3C</option>
+            </select>
+        </div>
+        <button id="backup-data-btn">Export Year Data Backup</button>
+    </div>
+
+    <div class="timetable-page" id="master-timetable-view">
+        
+        <div class="timetable-header">
+            <h1 class="school-title">Starlight High School</h1>
+            <h2 class="cycle-title"><u>Class Timetable (Week 1)</u></h2>
+        </div>
+
+        <div class="meta-container">
+            <div class="meta-left">
+                <div>School Year: <span id="school-year-val">2026-2027</span></div>
+                <div>Class Teacher: <span id="class-teacher-val">Loading...</span></div>
+            </div>
+            <div class="meta-right">
+                <div>Class: <span id="class-id-val">1A</span></div>
+                <div>Homeroom: <span id="homeroom-val">Loading...</span></div>
+            </div>
+        </div>
+
+        <table class="timetable-grid">
+            <thead>
+                <tr>
+                    <th style="width: 15%;">Time</th>
+                    <th style="width: 17%;">Mon</th>
+                    <th style="width: 17%;">Tue</th>
+                    <th style="width: 17%;">Wed</th>
+                    <th style="width: 17%;">Thu</th>
+                    <th style="width: 17%;">Fri</th>
+                </tr>
+            </thead>
+            <tbody id="timetable-body-week1">
+                <tr class="fixed-row">
+                    <td class="time-col">08:00-08:15</td>
+                    <td>Assembly</td>
+                    <td>Class Teacher</td>
+                    <td>Assembly</td>
+                    <td>Class Teacher</td>
+                    <td>Class Teacher</td>
+                </tr>
+
+                </tbody>
+        </table>
+    </div>
+
+    <div class="holding-dock" id="lessons-holding-tray">
+        <h3>Unassigned Lessons Tray & Counter</h3>
+        <div class="dock-container" id="dock-slots-target">
+            </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
