@@ -9,23 +9,54 @@
 <body>
 
     <div class="admin-dashboard">
-        <div class="control-group">
-            <label for="class-view-selector">Select Active Class Layout:</label>
-            <select id="class-view-selector">
-                <option value="1A">Grade 1A</option>
-                <option value="1B">Grade 1B</option>
-                <option value="1C">Grade 1C</option>
-                <option value="1D">Grade 1D</option>
-                <option value="2A">Grade 2A</option>
-                <option value="2B">Grade 2B</option>
-                <option value="2C">Grade 2C</option>
-                <option value="2D">Grade 2D</option>
-                <option value="3A">Grade 3A</option>
-                <option value="3B">Grade 3B</option>
-                <option value="3C">Grade 3C</option>
-            </select>
+        <div class="admin-section">
+            <h3>Display Control</h3>
+            <div class="control-group">
+                <label for="class-view-selector">Select Active Class:</label>
+                <select id="class-view-selector">
+                    <option value="1A">Grade 1A</option>
+                    <option value="1B">Grade 1B</option>
+                    <option value="1C">Grade 1C</option>
+                    <option value="1D">Grade 1D</option>
+                    <option value="2A">Grade 2A</option>
+                    <option value="2B">Grade 2B</option>
+                    <option value="2C">Grade 2C</option>
+                    <option value="2D">Grade 2D</option>
+                    <option value="3A">Grade 3A</option>
+                    <option value="3B">Grade 3B</option>
+                    <option value="3C">Grade 3C</option>
+                </select>
+            </div>
+            <button id="backup-data-btn" class="btn-dark">Export Year Data Backup</button>
         </div>
-        <button id="backup-data-btn">Export Year Data Backup</button>
+
+        <div class="admin-section">
+            <h3>Configure Class Meta</h3>
+            <div class="form-grid">
+                <input type="text" id="input-homeroom" placeholder="Homeroom Room (e.g., RM101)">
+                <input type="text" id="input-ct1" placeholder="Class Teacher 1 (Full Name)">
+                <input type="text" id="input-ct2" placeholder="Class Teacher 2 (Full Name, Optional)">
+                <button id="save-class-meta-btn" class="btn-action">Update Class Info</button>
+            </div>
+        </div>
+
+        <div class="admin-section">
+            <h3>Add Teacher to Roster</h3>
+            <div class="form-grid">
+                <input type="text" id="input-t-initials" placeholder="Initials (e.g., TH)" maxlength="4">
+                <input type="text" id="input-t-fullname" placeholder="Full Name (e.g., Tom Harrison)">
+                <select id="input-t-dept">
+                    <option value="General">Select Department</option>
+                    <option value="Languages">Languages Department</option>
+                    <option value="Mathematics">Mathematics Department</option>
+                    <option value="Sciences">Sciences Department</option>
+                    <option value="Humanities">Humanities Department</option>
+                    <option value="Arts & PE">Arts & PE Department</option>
+                </select>
+                <button id="add-teacher-btn" class="btn-action">Register Teacher</button>
+            </div>
+            <div class="roster-counter">Registered Staff: <span id="staff-count">0</span></div>
+        </div>
     </div>
 
     <div class="timetable-page" id="master-timetable-view">
@@ -38,13 +69,12 @@
         <div class="meta-container">
             <div class="meta-left">
                 <div>School Year: <span id="school-year-val">2026-2027</span></div>
-                <div>Class Teacher: <span id="class-teacher-val">Loading...</span></div>
+                <div>Class Teacher: <span id="class-teacher-val">None Assigned</span></div>
             </div>
             <div class="meta-right">
-    <div>Class: <span id="class-id-val">1A</span></div>
-    <div>Homeroom: <span id="homeroom-val">Loading...</span></div>
-</div>
-
+                <div>Class: <span id="class-id-val">1A</span></div>
+                <div>Homeroom: <span id="homeroom-val">None Assigned</span></div>
+            </div>
         </div>
 
         <table class="timetable-grid">
@@ -67,15 +97,13 @@
                     <td>Class Teacher</td>
                     <td>Class Teacher</td>
                 </tr>
-
-                </tbody>
+            </tbody>
         </table>
     </div>
 
     <div class="holding-dock" id="lessons-holding-tray">
         <h3>Unassigned Lessons Tray & Counter</h3>
-        <div class="dock-container" id="dock-slots-target">
-            </div>
+        <div class="dock-container" id="dock-slots-target"></div>
     </div>
 
     <script src="app.js"></script>
