@@ -405,12 +405,55 @@ function syncMetadataToUI() {
         }
     });
 
-    // Clear cells before repainting memory values
+   // Clear cells and reset structural layout states before repainting memory values
+    document.querySelectorAll(".cell .split-wrapper").forEach(w => {
+        w.style.display = "grid";
+        w.style.gridTemplateColumns = "1fr 1fr";
+    });
     document.querySelectorAll(".cell .split-left, .cell .split-right").forEach(n => {
+        n.style.display = "flex";
         n.querySelector(".room-label").textContent = "";
         n.querySelector(".subject-label").textContent = "";
         n.querySelector(".initials-label").textContent = "";
     });
+
+    Object.entries(AppState.schoolData.savedGrids).forEach(([key, data]) => {
+        if (!key.startsWith(`${cls}_`)) return;
+        const parts = key.split("_");
+        const wk = parts[1].replace("W","");
+        const dy = parts[2];
+        const pd = parts[3].replace("P","");
+        const sp = parts[4];
+
+        const match = document.querySelector(`.cell[data-week="${wk}"][data-day="${dy}"][data-period="${pd}"]`);
+        if (match) {
+            const subMeta = subjectsMetaIndex[data.subjectKey];
+            const wrapper = match.querySelector(".split-wrapper");
+            const leftNode = match.querySelector(`[data-split="left"]`);
+            const rightNode = match.querySelector(`[data-split="right"]`);
+
+            if (subMeta && subMeta.isGrouped === false) {
+                // Visual layout merge: hide the right split element, stretch the left element full width
+                if (wrapper && leftNode && rightNode) {
+                    wrapper.style.gridTemplateColumns = "1fr";
+                    rightNode.style.display = "none";
+                    
+                    leftNode.querySelector(".room-label").textContent = computedRoom;
+                    leftNode.querySelector(".subject-label").textContent = data.shortForm;
+                    leftNode.querySelector(".initials-label").textContent = data.teacherInitials;
+                }
+            } else {
+                // Standard block split layout assignment
+                const splitNode = match.querySelector(`[data-split="${sp}"]`);
+                if (splitNode) {
+                    splitNode.querySelector(".room-label").textContent = computedRoom;
+                    splitNode.querySelector(".subject-label").textContent = data.shortForm;
+                    splitNode.querySelector(".initials-label").textContent = data.teacherInitials;
+                }
+            }
+        }
+    });
+}
 
     Object.entries(AppState.schoolData.savedGrids).forEach(([key, data]) => {
         if (!key.startsWith(`${cls}_`)) return;
