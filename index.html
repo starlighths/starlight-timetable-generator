@@ -14,17 +14,17 @@
             <div class="control-group">
                 <label for="class-view-selector">Select Active Class:</label>
                 <select id="class-view-selector">
-                    <option value="1A">S1 - Grade 1A</option>
-                    <option value="1B">S1 - Grade 1B</option>
-                    <option value="1C">S1 - Grade 1C</option>
-                    <option value="1D">S1 - Grade 1D</option>
-                    <option value="2A">S2 - Grade 2A</option>
-                    <option value="2B">S2 - Grade 2B</option>
-                    <option value="2C">S2 - Grade 2C</option>
-                    <option value="2D">S2 - Grade 2D</option>
-                    <option value="3A">S3 - Grade 3A</option>
-                    <option value="3B">S3 - Grade 3B</option>
-                    <option value="3C">S3 - Grade 3C</option>
+                    <option value="1A">S1 - Class 1A</option>
+                    <option value="1B">S1 - Class 1B</option>
+                    <option value="1C">S1 - Class 1C</option>
+                    <option value="1D">S1 - Class 1D</option>
+                    <option value="2A">S2 - Class 2A</option>
+                    <option value="2B">S2 - Class 2B</option>
+                    <option value="2C">S2 - Class 2C</option>
+                    <option value="2D">S2 - Class 2D</option>
+                    <option value="3A">S3 - Class 3A</option>
+                    <option value="3B">S3 - Class 3B</option>
+                    <option value="3C">S3 - Class 3C</option>
                 </select>
             </div>
             <button id="backup-data-btn" class="btn-dark">Export Year Data Backup</button>
@@ -44,7 +44,7 @@
             <h3>Add Teacher to Roster</h3>
             <div class="form-grid">
                 <input type="text" id="input-t-initials" placeholder="Initials (e.g., TH)" maxlength="4">
-                <input type="text" id="input-t-fullname" placeholder="Full Name (e.g., Tom Harrison)">
+                <input type="text" id="input-t-fullname" placeholder="Full Name or Initials Repeat">
                 <select id="input-t-dept">
                     <option value="General">Select Main Committee/Role</option>
                     <option value="Principals/VPs/APs">Principals / VPs / APs</option>
@@ -66,13 +66,21 @@
         </div>
 
         <div class="admin-section">
-            <h3>Add Subject Budget per Grade</h3>
+            <h3>Add Subject Budget per Class</h3>
             <div class="form-grid">
                 <select id="input-sub-grade">
-                    <option value="">Select Target Level</option>
-                    <option value="Grade 1">S1 (Grade 1A - 1D)</option>
-                    <option value="Grade 2">S2 (Grade 2A - 2D)</option>
-                    <option value="Grade 3">S3 (Grade 3A - 3C)</option>
+                    <option value="">Select Target Class</option>
+                    <option value="1A">S1 - Class 1A</option>
+                    <option value="1B">S1 - Class 1B</option>
+                    <option value="1C">S1 - Class 1C</option>
+                    <option value="1D">S1 - Class 1D</option>
+                    <option value="2A">S2 - Class 2A</option>
+                    <option value="2B">S2 - Class 2B</option>
+                    <option value="2C">S2 - Class 2C</option>
+                    <option value="2D">S2 - Class 2D</option>
+                    <option value="3A">S3 - Class 3A</option>
+                    <option value="3B">S3 - Class 3B</option>
+                    <option value="3C">S3 - Class 3C</option>
                 </select>
                 <input type="text" id="input-sub-name" placeholder="Subject Shortform (e.g., Korean, KF, SST)">
                 <input type="text" id="input-sub-teacher" placeholder="Teacher Initials">

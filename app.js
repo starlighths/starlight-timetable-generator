@@ -16,7 +16,7 @@ const defaultDataSkeleton = {
         "3A": { teachers: [] }, "3B": { teachers: [] }, "3C": { teachers: [] }
     },
     teachersRoster: {},
-    subjectsCurriculum: {}, 
+    subjectsCurriculum: {}, // Budget rules per individual class
     savedGrids: {}          
 };
 
@@ -32,21 +32,21 @@ const timeSlots = [
 
 const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 
-// Official Mapping Matrix with built-in Rules and Meeting requirements
+// Official Mapping Matrix with Tier Verification Rules
 const subjectsMetaIndex = {
     "korean": { short: "Korean", requiresMeeting: true },
     "kf": { short: "KF", requiresMeeting: false },
     "eng": { short: "Eng", requiresMeeting: true },
     "eng(sp)": { short: "Eng(Sp)", requiresMeeting: false },
     "math": { short: "Math", requiresMeeting: true },
-    "ih": { short: "IH", requiresMeeting: false, levels: ["Grade 2", "Grade 3"] },
-    "sst": { short: "SST", requiresMeeting: true, levels: ["Grade 1"] },
-    "hist": { short: "Hist", requiresMeeting: true, levels: ["Grade 1"] },
+    "ih": { short: "IH", requiresMeeting: false, floors: ["2", "3"] }, // Restricted to S2, S3 classes
+    "sst": { short: "SST", requiresMeeting: true, floors: ["1"] },     // S1 Only
+    "hist": { short: "Hist", requiresMeeting: true, floors: ["1"] },    // S1 Only
     "kr.hist": { short: "Kr.Hist", requiresMeeting: true },
     "sci": { short: "Sci", requiresMeeting: true },
     "geog": { short: "Geog", requiresMeeting: true },
-    "b&e": { short: "B&E", requiresMeeting: true, levels: ["Grade 1"] },
-    "bus": { short: "Bus", requiresMeeting: false, levels: ["Grade 2", "Grade 3"] },
+    "b&e": { short: "B&E", requiresMeeting: true, floors: ["1"] },     // S1 Only
+    "bus": { short: "Bus", requiresMeeting: false, floors: ["2", "3"] }, // S2, S3 Only
     "music": { short: "Music", requiresMeeting: false },
     "tech": { short: "Tech", requiresMeeting: false },
     "arts": { short: "Arts", requiresMeeting: false },
@@ -54,8 +54,8 @@ const subjectsMetaIndex = {
     "dance": { short: "Dance", requiresMeeting: false, elective: true },
     "m&b": { short: "M&B", requiresMeeting: false, elective: true },
     "drama": { short: "Drama", requiresMeeting: false, elective: true },
-    "kl": { short: "KL", requiresMeeting: false, elective: true, levels: ["Grade 1"] },
-    "el": { short: "EL", requiresMeeting: false, elective: true, levels: ["Grade 1"] }
+    "kl": { short: "KL", requiresMeeting: false, elective: true, floors: ["1"] }, // S1 Only
+    "el": { short: "EL", requiresMeeting: false, elective: true, floors: ["1"] }  // S1 Only
 };
 
 // ==========================================================================
@@ -65,11 +65,11 @@ function calculateRoomNumber(classID) {
     const gradeLetter = classID.charAt(0); // "1", "2", or "3"
     const trackLetter = classID.charAt(1); // "A", "B", "C", or "D"
 
-    let floor = "3"; // S1 Default
-    if (gradeLetter === "2") floor = "4"; // S2
-    if (gradeLetter === "3") floor = "5"; // S3
+    let floor = "3"; 
+    if (gradeLetter === "2") floor = "4"; 
+    if (gradeLetter === "3") floor = "5"; 
 
-    let roomSuffix = "07"; // A Default
+    let roomSuffix = "07"; 
     if (trackLetter === "B") roomSuffix = "06";
     if (trackLetter === "C") roomSuffix = "05";
     if (trackLetter === "D") roomSuffix = "04";
@@ -163,8 +163,8 @@ function setupInterfaceListeners() {
 
     document.getElementById("save-class-meta-btn").addEventListener("click", () => {
         const currentClassID = AppState.currentClass;
-        const ct1 = document.getElementById("input-ct1").value.trim().toUpperCase();
-        const ct2 = document.getElementById("input-ct2").value.trim().toUpperCase();
+        const ct1 = document.getElementById("input-ct1").value.trim();
+        const ct2 = document.getElementById("input-ct2").value.trim();
         
         let tList = [];
         if (ct1) tList.push(ct1);
@@ -179,10 +179,12 @@ function setupInterfaceListeners() {
 
     document.getElementById("add-teacher-btn").addEventListener("click", () => {
         const initials = document.getElementById("input-t-initials").value.trim().toUpperCase();
-        const full = document.getElementById("input-t-fullname").value.trim();
+        let full = document.getElementById("input-t-fullname").value.trim();
         const dept = document.getElementById("input-t-dept").value;
 
-        if (!initials || !full) return;
+        if (!initials) return;
+        if (!full) full = initials; // Fallback to initials if full name input is blank
+
         AppState.schoolData.teachersRoster[initials] = { fullName: full, department: dept };
         persistDatabaseState();
         syncMetadataToUI();
@@ -191,27 +193,30 @@ function setupInterfaceListeners() {
     });
 
     document.getElementById("add-subject-btn").addEventListener("click", () => {
-        const grade = document.getElementById("input-sub-grade").value;
+        const targetClass = document.getElementById("input-sub-grade").value; // e.g., "1A"
         const subInput = document.getElementById("input-sub-name").value.trim().toLowerCase();
         const initials = document.getElementById("input-sub-teacher").value.trim().toUpperCase();
         const periods = document.getElementById("input-sub-periods").value;
 
-        if (!grade || !subInput || !initials || !periods) return;
+        if (!targetClass || !subInput || !initials || !periods) return;
 
         const subMeta = subjectsMetaIndex[subInput];
         if (!subMeta) {
-            alert(`"${subInput.toUpperCase()}" is not in the system's official subject lexicon list.`);
+            alert(`"${subInput.toUpperCase()}" is not an official system subject code.`);
             return;
         }
 
-        if (subMeta.levels && !subMeta.levels.includes(grade)) {
-            alert(`Level Restriction Conflict: ${subMeta.short} is restricted from being added to ${grade}.`);
+        // Check floor constraints using the class prefix number (1, 2, or 3)
+        const classFloorPrefix = targetClass.charAt(0);
+        if (subMeta.floors && !subMeta.floors.includes(classFloorPrefix)) {
+            alert(`Tier Restriction Conflict: ${subMeta.short} cannot be assigned to an S${classFloorPrefix} Class (${targetClass}).`);
             return;
         }
 
-        const ruleID = `${grade}_${subInput}_${initials}`;
+        // Unique tracking key bound directly to the exact target class (e.g., 1A_math_TH)
+        const ruleID = `${targetClass}_${subInput}_${initials}`;
         AppState.schoolData.subjectsCurriculum[ruleID] = {
-            grade: grade, subjectKey: subInput, shortForm: subMeta.short, teacherInitials: initials, totalPeriods: parseInt(periods, 10)
+            targetClass: targetClass, subjectKey: subInput, shortForm: subMeta.short, teacherInitials: initials, totalPeriods: parseInt(periods, 10)
         };
 
         persistDatabaseState();
@@ -258,14 +263,16 @@ function setupInterfaceListeners() {
     });
 
     document.getElementById("wipe-data-btn").addEventListener("click", () => {
-        if (confirm("Are you sure you want to delete all teachers, subjects, and timetables completely?")) {
+        if (confirm("Are you sure you want to completely clear the database layout parameters?")) {
             AppState.schoolData = JSON.parse(JSON.stringify(defaultDataSkeleton));
             persistDatabaseState();
             syncMetadataToUI();
         }
     });
 
-    document.getElementById("backup-data-btn").addEventListener("click", downloadSystemDataFile);
+    document.getElementById("backup-data-btn").addEventListener("downloadSystemDataFile", downloadSystemDataFile);
+    const backupBtn = document.getElementById("backup-data-btn");
+    if (backupBtn) backupBtn.addEventListener("click", downloadSystemDataFile);
 }
 
 // ==========================================================================
@@ -277,24 +284,20 @@ function syncMetadataToUI() {
     const computedRoom = calculateRoomNumber(cls);
 
     document.querySelectorAll(".school-year-val").forEach(el => el.textContent = AppState.schoolYear);
-    document.querySelectorAll(".class-id-val").forEach(el => el.textContent = cls);
+    document.querySelectorAll(".class-id-val").forEach(el => el.textContent = `Class ${cls}`);
     document.querySelectorAll(".homeroom-val").forEach(el => el.textContent = `RM${computedRoom}`);
     document.querySelectorAll(".class-teacher-val").forEach(el => el.textContent = info.teachers.length > 0 ? info.teachers.join(" / ") : "None Assigned");
 
     document.getElementById("staff-count").textContent = Object.keys(AppState.schoolData.teachersRoster).length;
     document.getElementById("subject-count").textContent = Object.keys(AppState.schoolData.subjectsCurriculum).length;
 
-    let normalizedGrade = "Grade 1";
-    if (["2A","2B","2C","2D"].includes(cls)) normalizedGrade = "Grade 2";
-    if (["3A","3B","3C"].includes(cls)) normalizedGrade = "Grade 3";
-
-    // Rebuild Unassigned Dock tokens
+    // Rebuild Unassigned Dock tokens tightly matched to this specific classroom class ID
     const dock = document.getElementById("dock-slots-target");
     dock.innerHTML = "";
     const activeAllocations = Object.values(AppState.schoolData.savedGrids);
 
     Object.entries(AppState.schoolData.subjectsCurriculum).forEach(([ruleID, rule]) => {
-        if (rule.grade !== normalizedGrade) return;
+        if (rule.targetClass !== cls) return; // Only extract budgets assigned explicitly to this exact class
 
         for (let i = 0; i < rule.totalPeriods; i++) {
             const isAllocated = activeAllocations.some(a => a.ruleID === ruleID && parseInt(a.tokenIndex,10) === i);
