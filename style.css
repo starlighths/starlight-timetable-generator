@@ -384,4 +384,10 @@ body {
     grid-column: span 2 !important;
     text-align: center;
     background-color: #fcfcfc;
+}/* Force timetable grid splits to always maintain a perfect 50/50 balance */
+.cell .split-left, 
+.cell .split-right {
+    flex: 1;
+    width: 50%;
+    min-width: 0; /* Prevents text from pushing the box wider */
 }
