@@ -32,31 +32,37 @@ const timeSlots = [
 
 const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 
-// Official Mapping Matrix with Tier Verification Rules
+// // Official Mapping Matrix with structural grouping and layout specifications
 const subjectsMetaIndex = {
-    "korean": { short: "Korean", requiresMeeting: true },
-    "kf": { short: "KF", requiresMeeting: false },
-    "eng": { short: "Eng", requiresMeeting: true },
-    "eng(sp)": { short: "Eng(Sp)", requiresMeeting: false },
-    "math": { short: "Math", requiresMeeting: true },
-    "ih": { short: "IH", requiresMeeting: false, floors: ["2", "3"] }, // Restricted to S2, S3 classes
-    "sst": { short: "SST", requiresMeeting: true, floors: ["1"] },     // S1 Only
-    "hist": { short: "Hist", requiresMeeting: true, floors: ["1"] },    // S1 Only
-    "kr.hist": { short: "Kr.Hist", requiresMeeting: true },
-    "sci": { short: "Sci", requiresMeeting: true },
-    "geog": { short: "Geog", requiresMeeting: true },
-    "b&e": { short: "B&E", requiresMeeting: true, floors: ["1"] },     // S1 Only
-    "bus": { short: "Bus", requiresMeeting: false, floors: ["2", "3"] }, // S2, S3 Only
-    "music": { short: "Music", requiresMeeting: false },
-    "tech": { short: "Tech", requiresMeeting: false },
-    "arts": { short: "Arts", requiresMeeting: false },
-    "pe": { short: "PE", requiresMeeting: false },
-    "dance": { short: "Dance", requiresMeeting: false, elective: true },
-    "m&b": { short: "M&B", requiresMeeting: false, elective: true },
-    "drama": { short: "Drama", requiresMeeting: false, elective: true },
-    "kl": { short: "KL", requiresMeeting: false, elective: true, floors: ["1"] }, // S1 Only
-    "el": { short: "EL", requiresMeeting: false, elective: true, floors: ["1"] }  // S1 Only
+    "korean": { short: "Korean", requiresMeeting: true, isGrouped: false },
+    "kf": { short: "KF", requiresMeeting: false, isGrouped: true }, // Splits with language groups
+    "eng": { short: "Eng", requiresMeeting: true, isGrouped: true }, // Cross-class block splits
+    "eng(sp)": { short: "Eng(Sp)", requiresMeeting: false, isGrouped: true },
+    "math": { short: "Math", requiresMeeting: true, isGrouped: true }, // Cross-class block splits
+    "ih": { short: "IH", requiresMeeting: false, isGrouped: false, floors: ["2", "3"] },
+    "sst": { short: "SST", requiresMeeting: true, isGrouped: false, floors: ["1"] },
+    "hist": { short: "Hist", requiresMeeting: true, isGrouped: false, floors: ["1"] },
+    "kr.hist": { short: "Kr.Hist", requiresMeeting: true, isGrouped: false },
+    "sci": { short: "Sci", requiresMeeting: true, isGrouped: false },
+    "geog": { short: "Geog", requiresMeeting: true, isGrouped: false },
+    "b&e": { short: "B&E", requiresMeeting: true, isGrouped: false, floors: ["1"] },
+    "bus": { short: "Bus", requiresMeeting: false, isGrouped: false, floors: ["2", "3"] },
+    "music": { short: "Music", requiresMeeting: false, isGrouped: false },
+    "tech": { short: "Tech", requiresMeeting: false, isGrouped: false },
+    "arts": { short: "Arts", requiresMeeting: false, isGrouped: false },
+    "pe": { short: "PE", requiresMeeting: false, isGrouped: false },
+    "dance": { short: "Dance", requiresMeeting: false, isGrouped: true, elective: true },
+    "m&b": { short: "M&B", requiresMeeting: false, isGrouped: true, elective: true },
+    "drama": { short: "Drama", requiresMeeting: false, isGrouped: true, elective: true },
+    "kl": { short: "KL", requiresMeeting: false, isGrouped: true, elective: true, floors: ["1"] },
+    "el": { short: "EL", requiresMeeting: false, isGrouped: true, elective: true, floors: ["1"] }
 };
+
+// Hardcoded cross-classed block band definitions
+const crossClassBands = [
+    { level: "Grade 1", classes: ["1C", "1D"], subjects: ["eng", "math"] },
+    { level: "Grade 2", classes: ["2C", "2D"], subjects: ["eng", "math"] }
+];
 
 // ==========================================================================
 // 2. Automated Smart Room Number Calculation Formula
@@ -226,7 +232,7 @@ function setupInterfaceListeners() {
         document.getElementById("input-sub-periods").value = "";
     });
 
-    // Timetable Assignment Clicking Node Interceptor
+    // Timetable Assignment Clicking Node Interceptor (Handles Full-Width Merging & Cross-Class Banding)
     document.getElementById("timetable-print-canvas").addEventListener("click", (e) => {
         const targetSplit = e.target.closest(".split-left, .split-right");
         if (!targetSplit) return;
@@ -238,6 +244,83 @@ function setupInterfaceListeners() {
         const sp = targetSplit.dataset.split;
         const allocationKey = `${AppState.currentClass}_W${wk}_${dy}_P${pd}_${sp}`;
 
+        // Eraser Clear Mode Execution
+        if (!AppState.selectedTokenNode && AppState.schoolData.savedGrids[allocationKey]) {
+            const dataToWipe = AppState.schoolData.savedGrids[allocationKey];
+            
+            // If it was a cross-classed subject or non-grouped subject, find and clean linked nodes too
+            Object.keys(AppState.schoolData.savedGrids).forEach(key => {
+                if (key.includes(`_W${wk}_${dy}_P${pd}_`)) {
+                    const match = AppState.schoolData.savedGrids[key];
+                    if (match.ruleID === dataToWipe.ruleID) {
+                        delete AppState.schoolData.savedGrids[key];
+                    }
+                }
+            });
+
+            persistDatabaseState();
+            syncMetadataToUI();
+            return;
+        }
+
+        if (!AppState.selectedTokenNode) return;
+
+        const subKey = AppState.selectedTokenNode.dataset.subkey;
+        const shortForm = AppState.selectedTokenNode.dataset.short;
+        const teacherInitials = AppState.selectedTokenNode.dataset.teacher;
+        const ruleId = AppState.selectedTokenNode.dataset.ruleid;
+        const tokenIndex = AppState.selectedTokenNode.dataset.tokenindex;
+        const subMeta = subjectsMetaIndex[subKey];
+
+        // --- TEACHER CONFLICT CHECK ENGINE ---
+        let conflictDetected = false;
+        let conflictingClass = "";
+        Object.entries(AppState.schoolData.savedGrids).forEach(([exKey, exData]) => {
+            if (exKey.includes(`_W${wk}_${dy}_P${pd}_${sp}`) && exData.teacherInitials === teacherInitials) {
+                conflictDetected = true;
+                conflictingClass = exKey.split("_")[0];
+            }
+        });
+
+        if (conflictDetected) {
+            alert(`🚫 Teacher Conflict! ${teacherInitials} is already teaching Class ${conflictingClass} at this period.`);
+            return;
+        }
+
+        // --- DETERMINING ALLOCATION BOUNDS ---
+        let targetClassesToFill = [AppState.currentClass];
+        
+        // Find if this subject belongs to a cross-class block link (e.g., 1C & 1D Eng)
+        const activeBand = crossClassBands.find(band => 
+            band.classes.includes(AppState.currentClass) && band.subjects.includes(subKey)
+        );
+
+        if (activeBand) {
+            targetClassesToFill = activeBand.classes; // Fill both 1C and 1D simultaneously!
+        }
+
+        // Save layout configuration to database maps
+        targetClassesToFill.forEach(cls => {
+            if (subMeta && subMeta.isGrouped === false) {
+                // Non-Grouped items fill BOTH left and right split options completely
+                AppState.schoolData.savedGrids[`${cls}_W${wk}_${dy}_P${pd}_left`] = {
+                    subjectKey: subKey, shortForm: shortForm, teacherInitials: teacherInitials, ruleID: ruleId, tokenIndex: tokenIndex
+                };
+                AppState.schoolData.savedGrids[`${cls}_W${wk}_${dy}_P${pd}_right`] = {
+                    subjectKey: subKey, shortForm: shortForm, teacherInitials: teacherInitials, ruleID: ruleId, tokenIndex: tokenIndex
+                };
+            } else {
+                // Grouped items fill just the specific targeted left or right half grid column split selected
+                AppState.schoolData.savedGrids[`${cls}_W${wk}_${dy}_P${pd}_${sp}`] = {
+                    subjectKey: subKey, shortForm: shortForm, teacherInitials: teacherInitials, ruleID: ruleId, tokenIndex: tokenIndex
+                };
+            }
+        });
+
+        persistDatabaseState();
+        AppState.selectedTokenNode = null; 
+        syncMetadataToUI();
+    });
         // Eraser Clear Mode Execution Check
         if (!AppState.selectedTokenNode && AppState.schoolData.savedGrids[allocationKey]) {
             delete AppState.schoolData.savedGrids[allocationKey];
