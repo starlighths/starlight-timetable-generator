@@ -145,16 +145,9 @@ function downloadSystemDataFile() {
     downloader.remove();
 }
 
-// 4. Interface Grid Structural Renderer
-// ==========================================================================
-function generateGridStructuralLayout(wk) {
-...
-// ==========================================================================
 // ==========================================================================
 // 4. Interface Grid Structural Renderer
 // ==========================================================================
-function generateGridStructuralLayout(wk) {
-...
 function generateGridStructuralLayout(wk) {
     const tableBody = document.querySelector(`.timetable-body-target[data-week="${wk}"]`);
     if (!tableBody) return;
@@ -169,6 +162,9 @@ function generateGridStructuralLayout(wk) {
             return;
         }
 
+        let rowHTML = `<td class="time-col">${slot.label}</td>`;
+
+        
         let rowHTML = `<td class="time-col">${slot.label}</td>`;
 
         daysOfWeek.forEach(day => {
