@@ -146,7 +146,7 @@ function downloadSystemDataFile() {
 }
 
 // ==========================================================================
-// 4. Interface Grid Structural Renderer (Fixed Duplication Sweep)
+// 4. Interface Grid Structural Renderer (Unique Identifier Version)
 // ==========================================================================
 function generateGridStructuralLayout(wk) {
     const tableBody = document.querySelector(`.timetable-body-target[data-week="${wk}"]`);
@@ -162,16 +162,16 @@ function generateGridStructuralLayout(wk) {
             return;
         }
 
-        // Declared exactly once here!
-        let rowHTML = `<td class="time-col">${slot.label}</td>`;
+        // Renamed completely to bypass any hidden duplicate declarations!
+        let masterGridHTML = `<td class="time-col">${slot.label}</td>`;
 
         daysOfWeek.forEach(day => {
             if (day === "Fri" && (slot.periodNum === 7 || slot.periodNum === 8)) {
-                if (slot.periodNum === 7) rowHTML += `<td rowspan="2" class="fixed-activity-cell">Class Activity</td>`;
+                if (slot.periodNum === 7) masterGridHTML += `<td rowspan="2" class="fixed-activity-cell">Class Activity</td>`;
                 return;
             }
 
-            rowHTML += `
+            masterGridHTML += `
                 <td class="cell" data-week="${wk}" data-day="${day}" data-period="${slot.periodNum}">
                     <div class="split-wrapper">
                         <div class="split-left" data-split="left">
@@ -188,7 +188,7 @@ function generateGridStructuralLayout(wk) {
                 </td>`;
         });
 
-        row.innerHTML = rowHTML;
+        row.innerHTML = masterGridHTML;
         tableBody.appendChild(row);
     });
 }
