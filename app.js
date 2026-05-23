@@ -10,17 +10,17 @@ let AppState = {
 const defaultDataSkeleton = {
     schoolYear: "2026-2027",
     classes: {
-        "1A": { homeroom: "", teachers: [] },
-        "1B": { homeroom: "", teachers: [] },
-        "1C": { homeroom: "", teachers: [] },
-        "1D": { homeroom: "", teachers: [] },
-        "2A": { homeroom: "", teachers: [] },
-        "2B": { homeroom: "", teachers: [] },
-        "2C": { homeroom: "", teachers: [] },
-        "2D": { homeroom: "", teachers: [] },
-        "3A": { homeroom: "", teachers: [] },
-        "3B": { homeroom: "", teachers: [] },
-        "3C": { homeroom: "", teachers: [] }
+        "1A": { homeroom: "307", teachers: [] },
+        "1B": { homeroom: "306", teachers: [] },
+        "1C": { homeroom: "305", teachers: [] },
+        "1D": { homeroom: "304", teachers: [] },
+        "2A": { homeroom: "407", teachers: [] },
+        "2B": { homeroom: "406", teachers: [] },
+        "2C": { homeroom: "405", teachers: [] },
+        "2D": { homeroom: "404", teachers: [] },
+        "3A": { homeroom: "507", teachers: [] },
+        "3B": { homeroom: "506", teachers: [] },
+        "3C": { homeroom: "505", teachers: [] }
     },
     // The Master Teacher Directory Index (Initials -> Data mapping)
     teachersRoster: {},
