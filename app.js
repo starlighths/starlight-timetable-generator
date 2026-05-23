@@ -146,7 +146,7 @@ function downloadSystemDataFile() {
 }
 
 // ==========================================================================
-// 4. Interface Grid Structural Renderer
+// 4. Interface Grid Structural Renderer (Fixed Duplication Sweep)
 // ==========================================================================
 function generateGridStructuralLayout(wk) {
     const tableBody = document.querySelector(`.timetable-body-target[data-week="${wk}"]`);
@@ -162,9 +162,7 @@ function generateGridStructuralLayout(wk) {
             return;
         }
 
-        let rowHTML = `<td class="time-col">${slot.label}</td>`;
-
-        
+        // Declared exactly once here!
         let rowHTML = `<td class="time-col">${slot.label}</td>`;
 
         daysOfWeek.forEach(day => {
