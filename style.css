@@ -409,3 +409,24 @@ body {
     align-items: center;
     box-sizing: border-box;
     border: 1px solid #eee; /* Light border helps you see the true width */
+/* Ensure the cell doesn't force extra grid behavior */
+.cell {
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+/* Force the wrapper to be a simple 2-column flex container */
+.split-wrapper {
+    display: flex !important;
+    flex-direction: row !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Force children to always share 50/50 space */
+.split-left, .split-right {
+    flex: 1 1 50% !important;
+    min-width: 0 !important; /* This is the fix for the shrinking issue */
+    border: 1px solid #eee;
+    box-sizing: border-box;
+}
