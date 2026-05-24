@@ -454,4 +454,21 @@ function syncMetadataToUI() {
             }
         }
     });
+}// This function packages everything into one exportable file
+function exportAllData() {
+    const fullDatabase = {
+        student: studentData,  // Your existing schedule
+        teachers: teacherData, // Your new teacher schedules
+        meta: {
+            date: new Date().toLocaleDateString(),
+            version: "1.0"
+        }
+    };
+
+    const blob = new Blob([JSON.stringify(fullDatabase, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'school_timetable_export.json';
+    link.click();
 }
