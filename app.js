@@ -7,7 +7,16 @@ let AppState = {
     selectedTokenNode: null, 
     schoolData: null
 };
+// app.js - Top of file
+let studentData = {};
+let teacherData = {}; 
 
+
+function loadData(savedJSON) {
+    const data = JSON.parse(savedJSON);
+    studentData = data.student || {};
+    teacherData = data.teachers || {};
+}
 const defaultDataSkeleton = {
     schoolYear: "2026-2027",
     classes: {
@@ -455,20 +464,19 @@ function syncMetadataToUI() {
         }
     });
 }// This function packages everything into one exportable file
+// app.js - Bottom of file
 function exportAllData() {
     const fullDatabase = {
-        student: studentData,  // Your existing schedule
-        teachers: teacherData, // Your new teacher schedules
-        meta: {
-            date: new Date().toLocaleDateString(),
-            version: "1.0"
-        }
+        student: studentData,
+        teachers: teacherData,
+        timestamp: new Date().toISOString()
     };
 
-    const blob = new Blob([JSON.stringify(fullDatabase, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'school_timetable_export.json';
-    link.click();
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fullDatabase, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "school_schedule_export.json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
 }
