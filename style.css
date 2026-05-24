@@ -398,24 +398,15 @@ body {
     table-layout: fixed; /* Ensures rigid column widths */
 }
 
-/* Force the left and right sides to be exactly equal */
-.split-left, 
-.split-right {
-    width: 100%;
-    overflow: hidden; /* Prevents long text from pushing the column wider */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    box-sizing: border-box;
-    border: 1px solid #eee; /* Light border helps you see the true width */
-/* Ensure the cell doesn't force extra grid behavior */
+/* Reset the table cell to prevent inherited flex/grid bugs */
 .cell {
     padding: 0 !important;
+    width: 80px; 
+    height: 60px; /* Force a consistent size */
     overflow: hidden;
 }
 
-/* Force the wrapper to be a simple 2-column flex container */
+/* Force the wrapper to handle the split exclusively */
 .split-wrapper {
     display: flex !important;
     flex-direction: row !important;
@@ -423,10 +414,14 @@ body {
     height: 100% !important;
 }
 
-/* Force children to always share 50/50 space */
+/* Ensure the two sides are perfectly 50/50 and cannot overflow */
 .split-left, .split-right {
     flex: 1 1 50% !important;
-    min-width: 0 !important; /* This is the fix for the shrinking issue */
-    border: 1px solid #eee;
+    min-width: 0 !important;
+    border: 0.5px solid #ddd;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
