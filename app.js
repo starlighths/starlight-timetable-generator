@@ -479,4 +479,22 @@ function exportAllData() {
     document.body.appendChild(downloadAnchorNode);
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
+}// Add an <input type="file" id="import-input" style="display:none" onchange="importData(event)"> to your index.html
+function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const imported = JSON.parse(e.target.result);
+        
+        // Update your global state
+        studentData = imported.student;
+        teacherData = imported.teachers;
+        
+        // Re-render your table to show the data
+        renderTable(); 
+        alert("Timetable imported successfully!");
+    };
+    reader.readAsText(file);
 }
